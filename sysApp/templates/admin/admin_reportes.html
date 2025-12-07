@@ -1,0 +1,298 @@
+{% extends 'admin/base_admin.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block content %}
+<div class="container-fluid" style="padding: 2rem;">
+    <!-- Encabezado -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <div>
+            <h1 style="margin: 0; font-size: 2.5rem; font-weight: 700; color: #2c3e50;">📊 Reportes y Análisis</h1>
+            <p style="color: #7f8c8d; margin-top: 0.5rem;">Análisis detallado del desempeño de la tienda</p>
+        </div>
+        <a href="{% url 'panel_admin' %}" class="btn btn-outline-secondary">← Volver al Panel</a>
+    </div>
+
+    <!-- ESTADÍSTICAS GENERALES -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 1.5rem; color: white; box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);">
+                <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">Ingresos Este Mes</p>
+                <h3 style="margin: 0.5rem 0 0 0; font-size: 2rem; font-weight: 700;">${{ stats.ingresos_mes|floatformat:0 }}</h3>
+                <small style="opacity: 0.8;">CLP</small>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 12px; padding: 1.5rem; color: white; box-shadow: 0 10px 30px rgba(245, 87, 108, 0.2);">
+                <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">Pedidos Este Mes</p>
+                <h3 style="margin: 0.5rem 0 0 0; font-size: 2rem; font-weight: 700;">{{ stats.pedidos_mes }}</h3>
+                <small style="opacity: 0.8;">pedidos</small>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border-radius: 12px; padding: 1.5rem; color: white; box-shadow: 0 10px 30px rgba(79, 172, 254, 0.2);">
+                <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">Ticket Promedio</p>
+                <h3 style="margin: 0.5rem 0 0 0; font-size: 2rem; font-weight: 700;">${{ stats.ticket_promedio|floatformat:0 }}</h3>
+                <small style="opacity: 0.8;">CLP</small>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); border-radius: 12px; padding: 1.5rem; color: white; box-shadow: 0 10px 30px rgba(250, 112, 154, 0.2);">
+                <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">Tasa de Conversión</p>
+                <h3 style="margin: 0.5rem 0 0 0; font-size: 2rem; font-weight: 700;">{{ stats.tasa_conversion }}%</h3>
+                <small style="opacity: 0.8;">carrito → pedido</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- PRODUCTOS MÁS VENDIDOS -->
+    <div class="card mb-4" style="border: none; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+        <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 12px 12px 0 0; padding: 1.5rem;">
+            <h5 style="margin: 0; font-size: 1.3rem; font-weight: 600;">🏆 Top 10 Productos Más Vendidos</h5>
+        </div>
+        <div class="card-body" style="padding: 1.5rem;">
+            {% if productos_vendidos %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead style="background: #f8f9fa;">
+                        <tr>
+                            <th>#</th>
+                            <th>Producto</th>
+                            <th class="text-center">Cantidad Vendida</th>
+                            <th class="text-right">Ingresos Generados</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in productos_vendidos %}
+                        <tr>
+                            <td><strong>{{ forloop.counter }}</strong></td>
+                            <td>{{ item.producto__titulo }}</td>
+                            <td class="text-center"><span class="badge bg-success">{{ item.cantidad_vendida }}</span></td>
+                            <td class="text-right"><strong>${{ item.ingresos|floatformat:0 }}</strong></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted">No hay datos disponibles</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ROTACIÓN DE INVENTARIO -->
+    <div class="card mb-4" style="border: none; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+        <div class="card-header" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border: none; border-radius: 12px 12px 0 0; padding: 1.5rem;">
+            <h5 style="margin: 0; font-size: 1.3rem; font-weight: 600;">🔄 Rotación de Inventario (últimos 30 días)</h5>
+        </div>
+        <div class="card-body" style="padding: 1.5rem;">
+            {% if rotacion_datos %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead style="background: #f8f9fa;">
+                        <tr>
+                            <th>Producto</th>
+                            <th class="text-center">Ventas (30d)</th>
+                            <th class="text-center">Rotación (%)</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in rotacion_datos %}
+                        <tr>
+                            <td>{{ item.titulo }}</td>
+                            <td class="text-center"><span class="badge bg-info">{{ item.ventas_30d }}</span></td>
+                            <td class="text-center">
+                                {% if item.rotacion >= 50 %}
+                                    <span class="badge bg-success">{{ item.rotacion }}%</span>
+                                {% elif item.rotacion >= 25 %}
+                                    <span class="badge bg-warning">{{ item.rotacion }}%</span>
+                                {% else %}
+                                    <span class="badge bg-danger">{{ item.rotacion }}%</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if item.rotacion >= 50 %}
+                                    <small class="text-success">✓ Excelente rotación</small>
+                                {% elif item.rotacion >= 25 %}
+                                    <small class="text-warning">⚠ Rotación moderada</small>
+                                {% else %}
+                                    <small class="text-danger">✗ Baja rotación</small>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted">No hay datos disponibles</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <!-- RIESGO DE QUIEBRA -->
+        <div class="col-lg-6 mb-4">
+            <div class="card" style="border: none; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+                <div class="card-header" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; border: none; border-radius: 12px 12px 0 0; padding: 1.5rem;">
+                    <h5 style="margin: 0; font-size: 1.3rem; font-weight: 600;">⚠️ Análisis de Riesgo Financiero</h5>
+                </div>
+                <div class="card-body" style="padding: 1.5rem;">
+                    <div style="display: grid; gap: 1rem;">
+                        <div style="padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                            <p style="margin: 0; color: #7f8c8d; font-size: 0.9rem;">Nivel de Riesgo</p>
+                            <h4 style="margin: 0.5rem 0 0 0;">
+                                {% if riesgo_quiebra.riesgo_nivel == 'alto' %}
+                                    <span class="badge bg-danger" style="font-size: 1rem; padding: 0.5rem 1rem;">🔴 ALTO</span>
+                                {% elif riesgo_quiebra.riesgo_nivel == 'medio' %}
+                                    <span class="badge bg-warning" style="font-size: 1rem; padding: 0.5rem 1rem;">🟡 MEDIO</span>
+                                {% else %}
+                                    <span class="badge bg-success" style="font-size: 1rem; padding: 0.5rem 1rem;">🟢 BAJO</span>
+                                {% endif %}
+                            </h4>
+                        </div>
+
+                        <div style="padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                            <p style="margin: 0; color: #7f8c8d; font-size: 0.9rem;">Ingresos Totales</p>
+                            <h4 style="margin: 0.5rem 0 0 0; color: #27ae60;">${{ riesgo_quiebra.ingresos_totales|floatformat:0 }} CLP</h4>
+                        </div>
+
+                        <div style="padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                            <p style="margin: 0; color: #7f8c8d; font-size: 0.9rem;">Inversión en Inventario</p>
+                            <h4 style="margin: 0.5rem 0 0 0; color: #e74c3c;">${{ riesgo_quiebra.inversion_inventario|floatformat:0 }} CLP</h4>
+                        </div>
+
+                        <div style="padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                            <p style="margin: 0; color: #7f8c8d; font-size: 0.9rem;">Relación Ingresos/Inversión</p>
+                            <h4 style="margin: 0.5rem 0 0 0;">{{ riesgo_quiebra.relacion_activos }}%</h4>
+                            <small style="color: #95a5a6;">
+                                {% if riesgo_quiebra.relacion_activos >= 100 %}
+                                    ✓ Ingresos superiores a inversión
+                                {% elif riesgo_quiebra.relacion_activos >= 60 %}
+                                    ⚠ Relación moderada
+                                {% else %}
+                                    ✗ Ingresos insuficientes
+                                {% endif %}
+                            </small>
+                        </div>
+
+                        <div style="padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                            <p style="margin: 0; color: #7f8c8d; font-size: 0.9rem;">Productos Sin Venta</p>
+                            <h4 style="margin: 0.5rem 0 0 0;">{{ riesgo_quiebra.productos_sin_venta }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DESEMPEÑO POR CATEGORÍA -->
+        <div class="col-lg-6 mb-4">
+            <div class="card" style="border: none; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+                <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 12px 12px 0 0; padding: 1.5rem;">
+                    <h5 style="margin: 0; font-size: 1.3rem; font-weight: 600;">📈 Desempeño por Categoría</h5>
+                </div>
+                <div class="card-body" style="padding: 1.5rem;">
+                    {% if desempeno_categoria %}
+                    <div style="max-height: 400px; overflow-y: auto;">
+                        {% for cat in desempeno_categoria %}
+                        <div style="margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid #ecf0f1;">
+                            <h6 style="margin: 0 0 0.5rem 0; color: #2c3e50; font-weight: 600;">{{ cat.nombre }}</h6>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.9rem;">
+                                <div>
+                                    <span style="color: #7f8c8d;">Productos:</span>
+                                    <strong style="color: #2980b9;">{{ cat.total_productos }}</strong>
+                                </div>
+                                <div>
+                                    <span style="color: #7f8c8d;">En Stock:</span>
+                                    <strong style="color: #27ae60;">{{ cat.productos_en_stock }}</strong>
+                                </div>
+                                <div>
+                                    <span style="color: #7f8c8d;">Ventas:</span>
+                                    <strong style="color: #e67e22;">{{ cat.ventas_totales|default:"0" }}</strong>
+                                </div>
+                                <div>
+                                    <span style="color: #7f8c8d;">Stock Total:</span>
+                                    <strong>{{ cat.stock_total|default:"0" }}</strong>
+                                </div>
+                            </div>
+                            <div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid #ecf0f1;">
+                                <span style="color: #7f8c8d; font-size: 0.85rem;">Ingresos:</span>
+                                <strong style="color: #27ae60; font-size: 1.1rem;">${{ cat.ingresos_totales|default:"0"|floatformat:0 }}</strong>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No hay datos disponibles</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PRODUCTOS OBSOLETOS -->
+    <div class="card mb-4" style="border: none; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+        <div class="card-header" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border: none; border-radius: 12px 12px 0 0; padding: 1.5rem;">
+            <h5 style="margin: 0; font-size: 1.3rem; font-weight: 600;">📦 Productos Obsoletos (sin venta en 60 días)</h5>
+        </div>
+        <div class="card-body" style="padding: 1.5rem;">
+            {% if productos_obsoletos %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead style="background: #f8f9fa;">
+                        <tr>
+                            <th>Producto</th>
+                            <th class="text-center">Stock Actual</th>
+                            <th class="text-right">Precio Unitario</th>
+                            <th class="text-right">Inversión Bloqueada</th>
+                            <th>Acción Recomendada</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for producto in productos_obsoletos %}
+                        <tr>
+                            <td>{{ producto.titulo }}</td>
+                            <td class="text-center">
+                                {% if producto.stock <= 0 %}
+                                    <span class="badge bg-danger">{{ producto.stock }}</span>
+                                {% elif producto.stock <= 5 %}
+                                    <span class="badge bg-warning">{{ producto.stock }}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ producto.stock }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-right"><strong>${{ producto.precio }}</strong></td>
+                            <td class="text-right"><strong>${{ producto.stock|mul:producto.precio|floatformat:0 }}</strong></td>
+                            <td>
+                                {% if producto.stock > 10 %}
+                                    <small class="text-danger">⚠ Considerar promoción</small>
+                                {% elif producto.stock > 0 %}
+                                    <small class="text-warning">⚡ Liquidar stock</small>
+                                {% else %}
+                                    <small class="text-muted">✓ Agotado</small>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted">¡Excelente! No hay productos obsoletos identificados</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .badge {
+        font-size: 0.85rem;
+        padding: 0.35rem 0.65rem;
+    }
+</style>
+{% endblock %}

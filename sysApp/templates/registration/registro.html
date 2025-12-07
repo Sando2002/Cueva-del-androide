@@ -1,0 +1,85 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Usuario - Cueva del Androide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Baloo+2:wght@800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/registro.css' %}?v=5.1">
+</head>
+
+<body>
+    <div class="registro-container">
+        <div class="registro-card">
+            <div class="logo-container" style="text-align: center; margin-bottom: 20px;">
+                <img src="{% static 'fondos/logo_CA.png' %}" alt="Logo" style="max-width: 150px; height: auto;">
+            </div>
+            <h2>Registrar Usuario</h2>
+
+            <!-- Mostrar mensajes -->
+            {% if messages %}
+                {% for message in messages %}
+                    {% if 'auth' in message.tags %}
+                        <div class="alert-message {% if message.level == 40 %}error{% else %}success{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+
+            <form method="post" action="{% url 'registro' %}">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="id_username"><i class="fas fa-user"></i> Nombre de usuario</label>
+                    <input type="text" class="form-control" id="id_username" name="username" placeholder="Nombre de usuario" value="{{ request.POST.username|default:'' }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="id_email"><i class="fas fa-envelope"></i> Correo electrónico</label>
+                    <input type="email" class="form-control" id="id_email" name="email" placeholder="tu@correo.com" value="{{ request.POST.email|default:'' }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="id_password1"><i class="fas fa-lock"></i> Contraseña</label>
+                    <div class="password-field-wrapper">
+                        <input type="password" class="form-control" id="id_password1" name="password1" placeholder="Mínimo 8 caracteres" required>
+                        <button type="button" class="password-toggle" onclick="togglePassword('id_password1')" style="position:absolute;right:18px;top:50%;transform:translateY(-50%);background:none;border:none;padding:0;margin:0;color:#999;cursor:pointer;z-index:10;width:auto;height:auto;display:flex;align-items:center;justify-content:center;">
+                            <i class="fas fa-eye" style="font-size:1.4rem;"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="id_password2"><i class="fas fa-lock"></i> Confirmar contraseña</label>
+                    <div class="password-field-wrapper">
+                        <input type="password" class="form-control" id="id_password2" name="password2" placeholder="Confirma tu contraseña" required>
+                        <button type="button" class="password-toggle" onclick="togglePassword('id_password2')" style="position:absolute;right:18px;top:50%;transform:translateY(-50%);background:none;border:none;padding:0;margin:0;color:#999;cursor:pointer;z-index:10;width:auto;height:auto;display:flex;align-items:center;justify-content:center;">
+                            <i class="fas fa-eye" style="font-size:1.4rem;"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-registro">Registrar</button>
+            </form>
+
+            <div class="forgot-password">
+                <a href="{% url 'login' %}">¿Ya tienes cuenta? Inicia sesión</a>
+            </div>
+
+            <div class="forgot-password">
+                <a href="{% url 'inicio' %}">Volver al inicio</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/form.js' %}?v=1.0"></script>
+    <script src="{% static 'js/animations.js' %}?v=1.0"></script>
+</body>
+
+</html>

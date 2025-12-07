@@ -1,0 +1,286 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block content %}
+<div class="container-fluid" style="padding: 2rem;">
+    <div style="margin-bottom: 2rem;">
+        <h1 style="margin: 0; font-size: 2.5rem; font-weight: 700; color: #2c3e50;"><i class="fas fa-history"></i> Historial de Auditoría</h1>
+        <p style="margin: 0.5rem 0 0 0; color: #7f8c8d;">Registro de todas las acciones realizadas por administradores</p>
+    </div>
+
+    <!-- Filtros -->
+    <div style="background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);">
+        <h5 style="color: #2c3e50; font-weight: 600; margin-bottom: 1rem;"><i class="fas fa-filter"></i> Filtros</h5>
+        <form id="filtrosAuditoria" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label" style="color: #2c3e50; font-weight: 600; margin-bottom: 0.5rem; display: block;">Usuario</label>
+                <input type="text" id="usuario_aud" name="usuario" class="form-control" placeholder="Buscar por usuario..." value="{{ filtro_usuario }}" style="border: 1px solid #ecf0f1; border-radius: 8px; padding: 0.8rem; color: #2c3e50;">
+            </div>
+            
+            <div class="col-md-3">
+                <label class="form-label" style="color: #2c3e50; font-weight: 600; margin-bottom: 0.5rem; display: block;">Tipo de Acción</label>
+                <select id="accion_aud" name="accion" class="form-select" style="border: 1px solid #ecf0f1; border-radius: 8px; padding: 0.8rem; color: #2c3e50;">
+                    <option value="">Todas las acciones</option>
+                    {% for valor, label in acciones_disponibles %}
+                    <option value="{{ valor }}" {% if filtro_accion == valor %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-3">
+                <label class="form-label" style="color: #2c3e50; font-weight: 600; margin-bottom: 0.5rem; display: block;">Modelo</label>
+                <select id="modelo_aud" name="modelo" class="form-select" style="border: 1px solid #ecf0f1; border-radius: 8px; padding: 0.8rem; color: #2c3e50;">
+                    <option value="">Todos los modelos</option>
+                    {% for valor, label in modelos_disponibles %}
+                    <option value="{{ valor }}" {% if filtro_modelo == valor %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-3" style="display: flex; align-items: flex-end; gap: 0.5rem;">
+                <button type="button" class="btn w-100" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border: none; border-radius: 8px; padding: 0.8rem; font-weight: 600; transition: all 0.3s ease; cursor: pointer;" onclick="aplicarFiltrosAuditoria()" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+                    <i class="fas fa-search"></i> Filtrar
+                </button>
+                <button type="button" class="btn" style="background: #ecf0f1; color: #2c3e50; border: none; border-radius: 8px; padding: 0.8rem 1rem; font-weight: 600; transition: all 0.3s ease; cursor: pointer;" onclick="limpiarFiltrosAuditoria()" onmouseover="this.style.backgroundColor='#d5dfe6'" onmouseout="this.style.backgroundColor='#ecf0f1'">
+                    <i class="bi bi-arrow-clockwise"></i> Limpiar
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Tabla de Auditorías -->
+    <div id="tabla-auditoria" style="background: white; border-radius: 12px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08); overflow: hidden;">
+        <div class="table-responsive">
+        <table class="table table-hover table-sm" style="margin-bottom: 0;">
+            <colgroup>
+                <col style="width: 14%;">
+                <col style="width: 12%;">
+                <col style="width: 11%;">
+                <col style="width: 11%;">
+                <col style="width: 10%;">
+                <col style="width: 18%;">
+                <col style="width: 12%;">
+                <col style="width: 12%;">
+            </colgroup>
+            <thead style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);">
+                <tr>
+                    <th style="color: #2c3e50; font-weight: 600; padding: 1.5rem; vertical-align: middle;">Fecha/Hora</th>
+                    <th style="color: #2c3e50; font-weight: 600; vertical-align: middle; text-align: center;">Usuario</th>
+                    <th style="color: #2c3e50; font-weight: 600; vertical-align: middle; text-align: center;">Acción</th>
+                    <th style="color: #2c3e50; font-weight: 600; vertical-align: middle;">Modelo</th>
+                    <th style="color: #2c3e50; font-weight: 600; vertical-align: middle; text-align: center;">Objeto ID</th>
+                    <th style="color: #2c3e50; font-weight: 600; vertical-align: middle;">Descripción</th>
+                    <th style="color: #2c3e50; font-weight: 600; vertical-align: middle;">IP Address</th>
+                    <th style="color: #2c3e50; font-weight: 600; vertical-align: middle; text-align: center;">Detalles</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for auditoria in auditorias %}
+                <tr style="border-bottom: 1px solid #ecf0f1; transition: background-color 0.2s ease; vertical-align: middle;" onmouseover="this.style.backgroundColor='#f8f9fa'" onmouseout="this.style.backgroundColor=''">
+                    <td style="padding: 1.5rem 0.75rem; color: #2c3e50; vertical-align: middle;">
+                        <small style="font-weight: 600;">{{ auditoria.fecha_creacion|date:"d/m/Y H:i:s" }}</small>
+                    </td>
+                    <td style="padding: 1.5rem 0.75rem; text-align: center; vertical-align: middle;">
+                        <span class="badge" style="padding: 0.5rem 0.8rem; font-size: 0.85rem; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">{{ auditoria.usuario.username }}</span>
+                    </td>
+                    <td style="padding: 1.5rem 0.75rem; text-align: center; vertical-align: middle;">
+                        <span class="badge" style="padding: 0.5rem 0.8rem; font-size: 0.85rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">{{ auditoria.get_accion_display }}</span>
+                    </td>
+                    <td style="padding: 1.5rem 0.75rem; color: #2c3e50; vertical-align: middle;">
+                        <small style="font-weight: 600;">{{ auditoria.modelo }}</small>
+                    </td>
+                    <td style="padding: 1.5rem 0.75rem; color: #667eea; font-weight: 600; text-align: center; vertical-align: middle;">
+                        <code style="font-size: 0.85rem;">{{ auditoria.objeto_id }}</code>
+                    </td>
+                    <td style="padding: 1.5rem 0.75rem; color: #2c3e50; vertical-align: middle;">
+                        <small>{{ auditoria.descripcion|truncatewords:8 }}</small>
+                    </td>
+                    <td style="padding: 1.5rem 0.75rem; color: #7f8c8d; vertical-align: middle;">
+                        <small>{{ auditoria.ip_address|default:"N/A" }}</small>
+                    </td>
+                    <td style="padding: 1.5rem 0.75rem; text-align: center; vertical-align: middle;">
+                        {% if auditoria.cambios %}
+                        <button class="btn btn-sm" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border: none; border-radius: 6px; padding: 0.5rem 0.8rem; transition: all 0.3s ease; white-space: nowrap;" data-bs-toggle="modal" data-bs-target="#detalleModal{{ auditoria.id }}" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                            <i class="fas fa-eye"></i> Ver
+                        </button>
+                        {% else %}
+                        <span class="text-muted" style="font-size: 0.9rem;">-</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center text-muted py-4">
+                        No hay registros de auditoría
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+
+    <!-- Paginación -->
+    <div id="paginacion-auditoria">
+    {% if page_obj.has_other_pages %}
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="#" onclick="irAPaginaAuditoria(1); return false;">Primera</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="#" onclick="irAPaginaAuditoria({{ page_obj.previous_page_number }}); return false;">Anterior</a>
+                </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'4' %}
+                    <li class="page-item">
+                        <a class="page-link" href="#" onclick="irAPaginaAuditoria({{ num }}); return false;">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="#" onclick="irAPaginaAuditoria({{ page_obj.next_page_number }}); return false;">Siguiente</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="#" onclick="irAPaginaAuditoria({{ page_obj.paginator.num_pages }}); return false;">Última</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+    </div>
+
+<!-- Modales de Detalles -->
+{% for auditoria in auditorias %}
+{% if auditoria.cambios %}
+<div class="modal fade" id="detalleModal{{ auditoria.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-eye"></i> Detalles de Auditoría - {{ auditoria.get_accion_display }}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong>Usuario:</strong> {{ auditoria.usuario.get_full_name|default:auditoria.usuario.username }}</p>
+                        <p><strong>Email:</strong> {{ auditoria.usuario.email }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Fecha/Hora:</strong> {{ auditoria.fecha_creacion|date:"d/m/Y H:i:s" }}</p>
+                        <p><strong>IP Address:</strong> <code>{{ auditoria.ip_address|default:"N/A" }}</code></p>
+                    </div>
+                </div>
+
+                <hr>
+
+                <h6><strong>Información de la Acción:</strong></h6>
+                <div class="alert alert-info">
+                    <p class="mb-0">{{ auditoria.descripcion }}</p>
+                </div>
+
+                {% if auditoria.cambios %}
+                <h6><strong>Cambios Realizados:</strong></h6>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-sm">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Campo</th>
+                                <th style="width: 40%;">Valor Anterior</th>
+                                <th style="width: 40%;">Valor Nuevo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for campo, cambio in auditoria.cambios.items %}
+                            <tr>
+                                <td><strong>{{ campo|title }}</strong></td>
+                                <td>
+                                    <code class="bg-light p-2 d-block">{{ cambio.antes }}</code>
+                                </td>
+                                <td>
+                                    <code class="bg-light p-2 d-block">{{ cambio.despues }}</code>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endfor %}
+
+<script>
+function aplicarFiltrosAuditoria() {
+    const usuario = document.getElementById('usuario_aud').value;
+    const accion = document.getElementById('accion_aud').value;
+    const modelo = document.getElementById('modelo_aud').value;
+    
+    const params = new URLSearchParams();
+    if (usuario) params.append('usuario', usuario);
+    if (accion) params.append('accion', accion);
+    if (modelo) params.append('modelo', modelo);
+    params.append('page', '1');
+    
+    cargarAuditoria(params.toString());
+}
+
+function irAPaginaAuditoria(numeroPagina) {
+    const usuario = document.getElementById('usuario_aud').value;
+    const accion = document.getElementById('accion_aud').value;
+    const modelo = document.getElementById('modelo_aud').value;
+    
+    const params = new URLSearchParams();
+    if (usuario) params.append('usuario', usuario);
+    if (accion) params.append('accion', accion);
+    if (modelo) params.append('modelo', modelo);
+    params.append('page', numeroPagina);
+    
+    cargarAuditoria(params.toString());
+}
+
+function cargarAuditoria(params) {
+    fetch(`{% url 'admin_auditoria' %}?${params}`, {
+        headers: {'X-Requested-With': 'XMLHttpRequest'}
+    })
+    .then(response => response.text())
+    .then(html => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const nuevaTabla = doc.querySelector('#tabla-auditoria');
+        const nuevaPaginacion = doc.querySelector('#paginacion-auditoria');
+        
+        if (nuevaTabla) {
+            document.querySelector('#tabla-auditoria').innerHTML = nuevaTabla.innerHTML;
+        }
+        if (nuevaPaginacion) {
+            document.querySelector('#paginacion-auditoria').innerHTML = nuevaPaginacion.innerHTML;
+        }
+        window.scrollTo(0, 0);
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+function limpiarFiltrosAuditoria() {
+    document.getElementById('usuario_aud').value = '';
+    document.getElementById('accion_aud').value = '';
+    document.getElementById('modelo_aud').value = '';
+    aplicarFiltrosAuditoria();
+}
+</script>
+
+{% endblock %}

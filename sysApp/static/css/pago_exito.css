@@ -1,0 +1,81 @@
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+}
+
+.header {
+    flex-shrink: 0;
+}
+
+.page-content {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+    padding: 40px 20px;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.success-container {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    padding: 40px;
+    max-width: 600px;
+    text-align: center;
+    width: 100%;
+}
+
+.success-icon {
+    font-size: 80px;
+    color: #28a745;
+    margin-bottom: 20px;
+    animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+h1 {
+    color: #333;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.pedido-info {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+    text-align: left;
+}
+
+.pedido-info p {
+    margin-bottom: 10px;
+}
+
+.label-info {
+    font-weight: bold;
+    color: #667eea;
+}
+
+.btn-home {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    font-weight: bold;
+    padding: 12px 30px;
+    border-radius: 50px;
+    margin-top: 20px;
+    transition: transform 0.3s;
+}
+
+.btn-home:hover {
+    transform: scale(1.05);
+    color: white;
+}

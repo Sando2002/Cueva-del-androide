@@ -1,0 +1,106 @@
+{% extends 'admin/base_admin.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container" style="padding: 2rem; max-width: 1000px;">
+    <div style="margin-bottom: 2rem;">
+        <h2 style="font-size: 2rem; color: #2c3e50; margin-bottom: 0.5rem;">🔓 Auditorias Abiertas</h2>
+        <p style="color: #7f8c8d;">
+            Auditorias en estado "En Proceso" que pueden necesitar ser finalizadas o canceladas
+        </p>
+    </div>
+
+    {% if auditorias %}
+    <!-- Alerta -->
+    <div style="padding: 1rem; background: #fff3cd; border: 2px solid #ffc107; border-radius: 8px; margin-bottom: 2rem; display: flex; gap: 1rem;">
+        <span style="font-size: 1.5rem;">⚠️</span>
+        <div>
+            <strong style="color: #856404;">Se encontraron {{ total }} auditoria(s) sin cerrar</strong>
+            <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: #856404;">
+                Estas auditorias están en estado "En Proceso". Pueden estar siendo editadas o han sido abandonadas. 
+                Considera finalizarlas o cancelarlas para desbloquear las funciones de compra.
+            </p>
+        </div>
+    </div>
+
+    <!-- Tabla de Auditorias Abiertas -->
+    <div class="card" style="border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); overflow: hidden;">
+        <div class="table-responsive">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead style="background: #34495e; color: white; font-weight: 600;">
+                    <tr>
+                        <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #2c3e50;">Número</th>
+                        <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #2c3e50;">Tipo</th>
+                        <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #2c3e50;">Productos</th>
+                        <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #2c3e50;">Creada Por</th>
+                        <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #2c3e50;">Fecha Creación</th>
+                        <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #2c3e50; white-space: nowrap;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for auditoria in auditorias %}
+                    <tr style="border-bottom: 1px solid #ecf0f1; background: #fef5e7;">
+                        <td style="padding: 1rem;">
+                            <strong style="color: #c0392b;">{{ auditoria.numero_auditoria }}</strong>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <span class="badge" style="padding: 0.5rem 1rem; font-size: 0.9rem; background: #f39c12; color: white;">
+                                {{ auditoria.get_tipo_display }}
+                            </span>
+                        </td>
+                        <td style="text-align: center; padding: 1rem;">
+                            <strong>{{ auditoria.detalles.count }}</strong>
+                        </td>
+                        <td style="padding: 1rem;">{{ auditoria.usuario_creador.username }}</td>
+                        <td style="padding: 1rem;">{{ auditoria.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                        <td style="padding: 1rem; text-align: center; white-space: nowrap;">
+                            <a href="{% url 'revisar_auditoria' auditoria.id %}" 
+                               style="padding: 0.5rem 0.75rem; background: #3498db; color: white; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.85rem; display: inline-block; margin-right: 0.5rem;">
+                                ✏️ Editar
+                            </a>
+                            <a href="{% url 'cancelar_auditoria' auditoria.id %}" 
+                               style="padding: 0.5rem 0.75rem; background: #e74c3c; color: white; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.85rem; display: inline-block;"
+                               onclick="return confirm('¿Cancelar esta auditoría? No se harán cambios en el inventario.')">
+                                ✖️ Cancelar
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Info -->
+    <div style="margin-top: 2rem; padding: 1.5rem; background: #d5f4e6; border-radius: 8px; border-left: 4px solid #27ae60;">
+        <strong style="color: #16a085;">💡 ¿Qué hacer?</strong>
+        <ul style="margin: 1rem 0 0 0; color: #16a085;">
+            <li><strong>✏️ Editar:</strong> Continúa editando la auditoría y finalízala normalmente</li>
+            <li><strong>✖️ Cancelar:</strong> Descarta la auditoría sin hacer cambios al inventario (útil si fue creada por error)</li>
+        </ul>
+    </div>
+
+    <!-- Botón volver -->
+    <div style="margin-top: 2rem;">
+        <a href="{% url 'gestionar_inventario' %}" 
+           style="display: inline-block; padding: 0.75rem 1.5rem; background: #95a5a6; color: white; border-radius: 6px; text-decoration: none; font-weight: 600;">
+            ← Volver a Gestión de Inventario
+        </a>
+    </div>
+
+    {% else %}
+    <!-- Sin auditorias abiertas -->
+    <div style="text-align: center; padding: 3rem;">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">✓</div>
+        <h3 style="color: #27ae60; margin-bottom: 0.5rem;">Bien hecho</h3>
+        <p style="color: #7f8c8d; margin-bottom: 2rem;">
+            No hay auditorias en proceso. Todas están cerradas.
+        </p>
+        <a href="{% url 'gestionar_inventario' %}" 
+           style="display: inline-block; padding: 0.75rem 1.5rem; background: #3498db; color: white; border-radius: 6px; text-decoration: none; font-weight: 600;">
+            ← Volver a Gestión de Inventario
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

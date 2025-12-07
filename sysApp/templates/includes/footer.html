@@ -1,0 +1,96 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/footer.css' %}?v=1.0">
+
+<footer class="footer py-4">
+  <div class="container">
+    <div class="row align-items-start gy-4">
+      <!-- Contacto / Servicio al cliente -->
+      <div class="col-12 col-md-4 contact">
+        <h5 class="fw-bold text-white">
+          <i class="fas fa-headset"></i> SERVICIO AL CLIENTE
+        </h5>
+        <p class="mb-2 text-white">
+          <i class="fas fa-clock"></i> Lunes a Viernes de 09:00 a 18:00 hrs
+        </p>
+        <p class="mb-2">
+          <a href="mailto:contacto@cuevadelandro ide.cl" class="contact-link">
+            <i class="fas fa-envelope"></i> contacto@cuevadeandroide.cl
+          </a>
+        </p>
+        <p class="mb-2">
+          <a href="https://wa.me/56971530113" target="_blank" class="contact-link">
+            <i class="fab fa-whatsapp"></i> +56 9 7153 0113 (WhatsApp)
+          </a>
+        </p>
+        <p class="mb-2 text-white text-small">
+          <i class="fas fa-id-card"></i> RUT: 21.199.106-2 <span style="font-size: 0.8rem;"></span>
+        </p>
+        <p class="mb-0">
+          <a href="https://maps.app.goo.gl/vYeUMQ2iDf2mAAjQ9" target="_blank" class="contact-link">
+            <i class="fas fa-map-marker-alt"></i> Almagro 432, 4440000 Los Angeles, Bío Bío
+          </a>
+        </p>
+      </div>
+
+      <!-- Enlaces rápidos -->
+      <div class="col-12 col-md-4 links">
+        <h5 class="fw-bold text-white">
+          <i class="fas fa-link"></i> ENLACES RÁPIDOS
+        </h5>
+        <ul class="list-unstyled">
+          <li>
+            <a href="{% url 'inicio' %}" class="footer-link">
+              <i class="fas fa-home"></i> Inicio
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'catalogo' %}" class="footer-link">
+              <i class="fas fa-shopping-bags"></i> Catálogo
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'politica_privacidad' %}" class="footer-link">
+              <i class="fas fa-shield-alt"></i> Política de Privacidad
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'terminos_condiciones' %}" class="footer-link">
+              <i class="fas fa-file-alt"></i> Términos y Condiciones
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'politica_devoluciones' %}" class="footer-link">
+              <i class="fas fa-undo"></i> Política de Devoluciones
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'politica_envios' %}" class="footer-link">
+              <i class="fas fa-store"></i> Retiro en Tienda
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Mapa / Ubicación -->
+      <div class="col-12 col-md-4 map">
+        <h5 class="fw-bold text-white">
+          <i class="fas fa-map"></i> UBICACIÓN
+        </h5>
+        <!-- Embed simple de Google Maps -->
+        <div class="map-wrapper">
+          <iframe class="map-iframe" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3166.653636646255!2d-72.35230252428016!3d-37.468899072064104!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x966bdd94e9f14657%3A0xd12e42630c2086b1!2sLa%20Cueva%20Del%20Androide!5e0!3m2!1ses-419!2scl!4v1763157353242!5m2!1ses-419!2scl" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+      </div>
+    </div>
+
+    <hr class="my-4" style="border-color: rgba(154, 46, 197, 0.3);">
+
+    <div class="row">
+      <div class="col-12 text-center">
+        <p class="small mb-0 text-white">
+          <i class="fas fa-copyright"></i> 2025 Cueva del Androide - Todos los derechos reservados
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,201 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Productos - Cueva del Androide</title>
+
+    <!-- Frameworks -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="{% static 'css/navbar.css' %}?v=5.1" />
+    <link rel="stylesheet" href="{% static 'css/catalogo.css' %}?v=1.0">
+
+    <!-- Fuentes e íconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Baloo+2:wght@800;900&display=swap" rel="stylesheet">
+</head>
+
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header dinámico -->
+    {% include 'includes/navbar.html' %}
+
+<!-- TÍTULO -->
+<div class="container mb-5 text-center">
+    <img src="{% static 'fondos/gif.gif' %}" class="img-fluid" style="max-width: 200px; height: auto;">
+    <p style="color: #ffffff; font-size: 2rem; margin-top: 20px; font-weight: bold;
+        text-shadow: -1px -1px 0 #000000, 1px -1px 0 #000000, -1px 1px 0 #000000, 1px 1px 0 #000000;">
+        ¡Bienvenido al catálogo!
+    </p>
+</div>
+
+
+<!-- FILTROS COMPACTOS -->
+<div class="container mb-4">
+    <form id="filtrosCatalogo" class="filter-compact">
+        <div class="filter-compact-row">
+            <select id="categoria_cat" name="categoria" class="filter-compact-select">
+                <option value="">Categoría</option>
+                {% for categoria in categorias %}
+                    <option value="{{ categoria.id }}">
+                        {{ categoria.nombre }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <input type="number" id="precio_min_cat" name="precio_min" class="filter-compact-input" placeholder="Precio Mín" onkeypress="if(event.key==='Enter') aplicarFiltrosCatalogo()">
+
+            <input type="number" id="precio_max_cat" name="precio_max" class="filter-compact-input" placeholder="Precio Máx" onkeypress="if(event.key==='Enter') aplicarFiltrosCatalogo()">
+
+            <button type="button" class="filter-compact-btn" onclick="aplicarFiltrosCatalogo()">
+                <i class="fas fa-filter"></i>
+            </button>
+
+            <a href="#" class="filter-compact-clear" onclick="limpiarFiltrosCatalogo(); return false;">
+                <i class="fas fa-times"></i>
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- NUEVO CATÁLOGO DE PRODUCTOS -->
+<div class="container">
+    <div class="product-grid" id="catalogo-grid">
+        {% for producto in productos %}
+            <div class="product-card {% if producto.stock == 0 %}agotado{% endif %}">
+                <img src="{{ producto.foto.url }}" alt="{{ producto.titulo }}" {% if producto.stock == 0 %}class="imagen-agotada"{% endif %}>
+                <div class="product-info">
+                    <h5>{{ producto.titulo }}</h5>
+                    <p class="price">${{ producto.precio }}</p>
+                    <p class="stock-info">
+                        {% if producto.stock == 0 %}
+                            <span class="stock-agotado">Agotado</span>
+                        {% else %}
+                            <span class="stock-disponible">Stock: {{ producto.stock }}</span>
+                        {% endif %}
+                    </p>
+                    <a href="{% url 'detalleProducto' producto.pk %}" class="text-center mt-auto">Ver Detalles</a>
+                </div>
+            </div>
+        {% empty %}
+            <p class="text-center text-muted">No hay productos disponibles.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- PAGINACION -->
+<div id="paginacion-catalogo">
+    {% if productos.has_other_pages %}
+    <nav class="mt-4 mb-5">
+        <ul class="pagination justify-content-center">
+            {% if productos.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="#" onclick="irAPaginaCatalogo({{ productos.previous_page_number }}); return false;">Anterior</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled"><span class="page-link">Anterior</span></li>
+            {% endif %}
+
+            {% for num in productos.paginator.page_range %}
+                {% if num == productos.number %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% else %}
+                    <li class="page-item"><a class="page-link" href="#" onclick="irAPaginaCatalogo({{ num }}); return false;">{{ num }}</a></li>
+                {% endif %}
+            {% endfor %}
+
+            {% if productos.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="#" onclick="irAPaginaCatalogo({{ productos.next_page_number }}); return false;">Siguiente</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled"><span class="page-link">Siguiente</span></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<!-- FOOTER -->
+{% include 'includes/footer.html' %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'js/menu.js' %}?v=1.0"></script>
+
+<script>
+function aplicarFiltrosCatalogo() {
+    const categoria = document.getElementById('categoria_cat').value;
+    const precio_min = document.getElementById('precio_min_cat').value;
+    const precio_max = document.getElementById('precio_max_cat').value;
+    
+    const params = new URLSearchParams();
+    if (categoria) params.append('categoria', categoria);
+    if (precio_min) params.append('precio_min', precio_min);
+    if (precio_max) params.append('precio_max', precio_max);
+    // Siempre comenzar en página 1 al aplicar filtros
+    params.append('page', '1');
+    
+    cargarCatalogo(params.toString());
+}
+
+function irAPaginaCatalogo(numeroPagina) {
+    const categoria = document.getElementById('categoria_cat').value;
+    const precio_min = document.getElementById('precio_min_cat').value;
+    const precio_max = document.getElementById('precio_max_cat').value;
+    
+    const params = new URLSearchParams();
+    if (categoria) params.append('categoria', categoria);
+    if (precio_min) params.append('precio_min', precio_min);
+    if (precio_max) params.append('precio_max', precio_max);
+    params.append('page', numeroPagina);
+    
+    cargarCatalogo(params.toString());
+}
+
+function cargarCatalogo(params) {
+    fetch(`{% url 'catalogo' %}?${params}`, {
+        headers: {'X-Requested-With': 'XMLHttpRequest'}
+    })
+    .then(response => response.text())
+    .then(html => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const nuevoGrid = doc.querySelector('#catalogo-grid');
+        const nuevaPaginacion = doc.querySelector('#paginacion-catalogo');
+        
+        if (nuevoGrid) {
+            document.querySelector('#catalogo-grid').innerHTML = nuevoGrid.innerHTML;
+        }
+        if (nuevaPaginacion) {
+            document.querySelector('#paginacion-catalogo').innerHTML = nuevaPaginacion.innerHTML;
+        }
+        window.scrollTo(0, 0);
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+function limpiarFiltrosCatalogo() {
+    document.getElementById('categoria_cat').value = '';
+    document.getElementById('precio_min_cat').value = '';
+    document.getElementById('precio_max_cat').value = '';
+    aplicarFiltrosCatalogo();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Aplicar filtros iniciales si hay en la URL
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('categoria') || params.has('precio_min') || params.has('precio_max')) {
+        if (params.get('categoria')) document.getElementById('categoria_cat').value = params.get('categoria');
+        if (params.get('precio_min')) document.getElementById('precio_min_cat').value = params.get('precio_min');
+        if (params.get('precio_max')) document.getElementById('precio_max_cat').value = params.get('precio_max');
+    }
+});
+</script>
+</body>
+</html>

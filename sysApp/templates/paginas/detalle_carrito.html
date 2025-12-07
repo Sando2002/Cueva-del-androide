@@ -1,0 +1,142 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito de Compras - Cueva del Androide</title>
+    <!-- Frameworks -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="{% static 'css/navbar.css' %}?v=5.1" />
+    <link rel="stylesheet" href="{% static 'css/detalle_carrito.css' %}?v=1.0">
+    
+    <!-- Fuentes e íconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Baloo+2:wght@800;900&display=swap" rel="stylesheet">
+</head>
+
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header dinámico -->
+    {% include 'includes/navbar.html' %}
+
+    <!-- Contenido principal -->
+    <div class="content-wrapper">
+        <div class="container">
+            
+
+        {% if items_carrito %}
+            <div class="carrito-container">
+                <div class="carrito-list">
+                    <div class="carrito-table">
+                        <div class="carrito-header">
+                            <div class="carrito-col-imagen">Productos</div>
+                            <div class="carrito-col-producto"></div>
+                            <div class="carrito-col-cantidad">Cantidad</div>
+                            <div class="carrito-col-precio">Precio</div>
+                            <div class="carrito-col-subtotal">Subtotal</div>
+                            <div class="carrito-col-acciones"></div>
+                        </div>
+
+                        {% for item in items_carrito %}
+                            <div class="carrito-row">
+                                <div class="carrito-col-imagen">
+                                    <img src="{{ item.producto.foto.url }}" alt="{{ item.producto.titulo }}" class="carrito-imagen">
+                                </div>
+                                <div class="carrito-col-producto">
+                                    <span>{{ item.producto.titulo }}</span>
+                                    <span class="mobile-subtotal">${{ item.subtotal }}</span>
+                                </div>
+                                <div class="carrito-col-cantidad">
+                                    <form method="post" action="{% url 'actualizar_cantidad' item.id %}" class="cantidad-form">
+                                        {% csrf_token %}
+                                        <button type="submit" name="accion" value="decrementar" class="cantidad-btn">−</button>
+                                        <span class="cantidad-valor">{{ item.cantidad }}</span>
+                                        <button type="submit" name="accion" value="incrementar" class="cantidad-btn">+</button>
+                                    </form>
+                                </div>
+                                <div class="carrito-col-precio">
+                                    <span>${{ item.producto.precio }}</span>
+                                </div>
+                                <div class="carrito-col-subtotal">
+                                    <span>${{ item.subtotal }}</span>
+                                </div>
+                                <div class="carrito-col-acciones">
+                                    <a href="{% url 'eliminar_del_carrito' item.id %}" class="btn-eliminar" title="Eliminar">
+                                        Eliminar
+                                    </a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="carrito-acciones">
+                        <a href="{% url 'catalogo' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Seguir Comprando
+                        </a>
+                    </div>
+                </div>
+
+                <aside class="carrito-sidebar">
+                    <div class="resumen-card">
+                        <h4>Resumen de Compra</h4>
+                        
+                        <!-- Aviso de retiro en tienda -->
+                        <div class="alert alert-info mb-3" style="border-radius: 8px; padding: 12px; background-color: #e3f2fd; border-left: 4px solid #2196F3;">
+                            <i class="fas fa-store"></i>
+                            <strong style="color: #1565c0;">Retiro en Tienda</strong>
+                            <p style="margin: 5px 0 0 0; font-size: 0.9rem; color: #555;">
+                                Prepárate para retirar tu compra en nuestro local. Preparación: 24-48 hrs.
+                            </p>
+                        </div>
+                        
+                        <div class="resumen-line">
+                            <span>Subtotal:</span>
+                            <span class="subtotal-precio">${{ total_carrito }}</span>
+                        </div>
+                        <div class="resumen-line">
+                            <span><i class="fas fa-truck-fast"></i> Envío:</span>
+                            <span class="subtotal-precio" style="color: #28a745;"><strong>GRATIS</strong></span>
+                        </div>
+                        <div class="resumen-line total-line">
+                            <span>Total:</span>
+                            <span class="total-precio">${{ total_carrito }}</span>
+                        </div>
+
+                        {% if auditoria_abierta %}
+                        <button class="btn btn-danger" style="width: 100%; text-decoration: none; cursor: not-allowed;" disabled>
+                            <i class="fas fa-lock"></i> Compras Bloqueadas (Auditoría en Progreso)
+                        </button>
+                        {% else %}
+                        <a href="{% url 'checkout_mercadopago' %}" class="btn btn-success iniciar-compra" style="width: 100%; text-decoration: none;">
+                            <i class="fas fa-credit-card"></i> Pagar y Continuar
+                        </a>
+                        {% endif %}
+
+                        <div class="mas-productos">
+                            <a href="{% url 'catalogo' %}">Ver más productos</a>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+
+        {% else %}
+            <div class="carrito-vacio">
+                <p class="texto-vacio">No hay productos en tu carrito.</p>
+                <a href="{% url 'catalogo' %}" class="btn btn-primary mt-3">Ir al Catálogo</a>
+            </div>
+        {% endif %}
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    {% include 'includes/footer.html' %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'js/cart.js' %}?v=1.0"></script>
+</body>
+</html>

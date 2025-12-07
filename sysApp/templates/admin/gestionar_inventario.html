@@ -1,0 +1,413 @@
+{% extends 'admin/base_admin.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid" style="padding: 2rem;">
+    <!-- Encabezado -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <div>
+            <h1 style="margin: 0; font-size: 2.5rem; font-weight: 700; color: #2c3e50;">Gestión de Inventario</h1>
+            <p style="color: #7f8c8d; margin-top: 0.5rem;">Control de stock, movimientos, auditorías y órdenes de compra</p>
+        </div>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <a href="{% url 'crear_orden_compra' %}" style="padding: 0.8rem 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 8px; text-decoration: none; font-weight: 600; border: none; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 10px 25px rgba(102, 126, 234, 0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 5px 15px rgba(102, 126, 234, 0.2)'">
+                <i class="bi bi-truck"></i> Orden de Compra
+            </a>
+            <a href="{% url 'crear_auditoria_inventario' %}" style="padding: 0.8rem 1.5rem; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border-radius: 8px; text-decoration: none; font-weight: 600; border: none; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(79, 172, 254, 0.2);" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 10px 25px rgba(79, 172, 254, 0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 5px 15px rgba(79, 172, 254, 0.2)'">
+                <i class="bi bi-search"></i> Nueva Auditoría
+            </a>
+            <a href="{% url 'auditorias_abiertas' %}" style="padding: 0.8rem 1.5rem; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border-radius: 8px; text-decoration: none; font-weight: 600; border: none; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(245, 87, 108, 0.2);" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 10px 25px rgba(245, 87, 108, 0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 5px 15px rgba(245, 87, 108, 0.2)'">
+                <i class="bi bi-exclamation-circle"></i> Auditorias Abiertas
+            </a>
+        </div>
+    </div>
+
+    <!-- ALERTA DE AUDITORIAS ABIERTAS -->
+    {% if auditorias_completadas %}
+        {% with abiertas=auditorias_completadas|dictsort:"estado" %}
+            {% if total > 0 %}
+            <div style="padding: 1rem; background: #f8d7da; border: 2px solid #f5c6cb; border-radius: 8px; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; gap: 1rem;">
+                    <span style="font-size: 1.5rem;">🔴</span>
+                    <div>
+                        <strong style="color: #721c24;">⚠️ ATENCIÓN: Hay auditorias en proceso bloqueando las compras</strong>
+                        <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: #721c24;">
+                            Los usuarios no pueden comprar ni agregar productos al carrito mientras hay auditorias sin cerrar.
+                        </p>
+                    </div>
+                </div>
+                <a href="{% url 'auditorias_abiertas' %}" style="padding: 0.75rem 1.5rem; background: #721c24; color: white; border-radius: 6px; text-decoration: none; font-weight: 600; white-space: nowrap;">
+                    Ver Auditorias Abiertas
+                </a>
+            </div>
+            {% endif %}
+        {% endwith %}
+    {% endif %}
+
+    <!-- ALERTAS DE REORDEN -->
+    {% if productos_reorden %}
+    <div style="background: white; border-radius: 12px; padding: 0; margin-bottom: 2rem; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08); overflow: hidden; border-left: 4px solid #e74c3c;">
+        <div style="background: linear-gradient(135deg, #fadbd8 0%, #f5b7b1 100%); color: #c0392b; padding: 1.5rem; border-bottom: 1px solid #d5a6a6;">
+            <h5 style="margin: 0; font-weight: 600; font-size: 1.1rem;"><i class="bi bi-exclamation-triangle"></i> Productos que Necesitan Reorden ({{ total_reorden }})</h5>
+        </div>
+        <div style="padding: 1.5rem;">
+            <div class="table-responsive">
+                <table class="table table-hover" style="margin-bottom: 0;">
+                    <thead style="background: #f8f9fa;">
+                        <tr>
+                            <th style="color: #2c3e50; font-weight: 600; padding: 1rem;">Producto</th>
+                            <th style="color: #2c3e50; font-weight: 600; text-align: center;">Stock Actual</th>
+                            <th style="color: #2c3e50; font-weight: 600; text-align: center;">Stock Mínimo</th>
+                            <th style="color: #2c3e50; font-weight: 600; text-align: center;">Stock Máximo</th>
+                            <th style="color: #2c3e50; font-weight: 600; text-align: center; white-space: nowrap;">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for producto in productos_reorden %}
+                        <tr>
+                            <td style="padding: 1rem;"><strong>{{ producto.titulo }}</strong></td>
+                            <td style="text-align: center; padding: 1rem;"><span class="badge" style="background: #e74c3c; padding: 0.5rem 1rem; font-size: 0.9rem;">{{ producto.stock }}</span></td>
+                            <td style="text-align: center; padding: 1rem;">{{ producto.stock_minimo }}</td>
+                            <td style="text-align: center; padding: 1rem;">{{ producto.stock_maximo }}</td>
+                            <td style="text-align: center; padding: 1rem; white-space: nowrap;">
+                                <a href="{% url 'registrar_movimiento' producto.id %}" style="padding: 0.5rem 1rem; background: #f39c12; color: white; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.3s ease;" onmouseover="this.style.backgroundColor='#e67e22'" onmouseout="this.style.backgroundColor='#f39c12'">
+                                    Registrar Entrada
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- STOCK EXCEDIDO -->
+    {% if productos_exceso %}
+    <div style="background: white; border-radius: 12px; padding: 0; margin-bottom: 2rem; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08); overflow: hidden; border-left: 4px solid #f39c12;">
+        <div style="background: linear-gradient(135deg, #fef5e7 0%, #fdebd0 100%); color: #d68910; padding: 1.5rem; border-bottom: 1px solid #f8c471;">
+            <h5 style="margin: 0; font-weight: 600; font-size: 1.1rem;"><i class="bi bi-info-circle"></i> Stock Excedido ({{ total_exceso }})</h5>
+        </div>
+        <div style="padding: 1.5rem;">
+            <div class="table-responsive">
+                <table class="table table-hover" style="margin-bottom: 0;">
+                    <thead style="background: #f8f9fa;">
+                        <tr>
+                            <th style="color: #2c3e50; font-weight: 600; padding: 1rem;">Producto</th>
+                            <th style="color: #2c3e50; font-weight: 600; text-align: center;">Stock Actual</th>
+                            <th style="color: #2c3e50; font-weight: 600; text-align: center;">Stock Máximo</th>
+                            <th style="color: #2c3e50; font-weight: 600; text-align: center;">Excedente</th>
+                            <th style="color: #2c3e50; font-weight: 600; text-align: center; white-space: nowrap;">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for producto in productos_exceso %}
+                        <tr>
+                            <td style="padding: 1rem;"><strong>{{ producto.titulo }}</strong></td>
+                            <td style="text-align: center; padding: 1rem;"><span class="badge" style="background: #f39c12; padding: 0.5rem 1rem; font-size: 0.9rem;">{{ producto.stock }}</span></td>
+                            <td style="text-align: center; padding: 1rem;">{{ producto.stock_maximo }}</td>
+                            <td style="text-align: center; padding: 1rem;"><strong>+{{ producto.stock|add:"-"|add:producto.stock_maximo }}</strong></td>
+                            <td style="text-align: center; padding: 1rem; white-space: nowrap;">
+                                <a href="{% url 'registrar_movimiento' producto.id %}" style="padding: 0.5rem 1rem; background: #3498db; color: white; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.3s ease;" onmouseover="this.style.backgroundColor='#2980b9'" onmouseout="this.style.backgroundColor='#3498db'">
+                                    Registrar Salida
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ÓRDENES DE COMPRA PENDIENTES -->
+    {% if ordenes_pendientes %}
+    <div style="background: white; border-radius: 12px; padding: 0; margin-bottom: 2rem; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08); overflow: hidden;">
+        <div style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; padding: 1.5rem; border-bottom: 1px solid #2874a6;">
+            <h5 style="margin: 0; font-weight: 600; font-size: 1.1rem;"><i class="bi bi-truck"></i> Órdenes de Compra Pendientes</h5>
+        </div>
+        <div style="padding: 1.5rem;">
+            <div class="table-responsive">
+                <table class="table table-hover" style="margin-bottom: 0;">
+                    <thead style="background: #f8f9fa;">
+                        <tr>
+                            <th style="color: #2c3e50; font-weight: 600; padding: 1rem;">Orden</th>
+                            <th style="color: #2c3e50; font-weight: 600;">Proveedor</th>
+                            <th style="color: #2c3e50; font-weight: 600; text-align: center;">Estado</th>
+                            <th style="color: #2c3e50; font-weight: 600;">Entrega Esperada</th>
+                            <th style="color: #2c3e50; font-weight: 600; text-align: right;">Total</th>
+                            <th style="color: #2c3e50; font-weight: 600; text-align: center;">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for orden in ordenes_pendientes %}
+                        <tr>
+                            <td style="padding: 1rem;"><strong>{{ orden.numero_orden }}</strong></td>
+                            <td style="padding: 1rem;">{{ orden.proveedor }}</td>
+                            <td style="text-align: center; padding: 1rem;">
+                                <span class="badge" style="padding: 0.5rem 1rem; font-size: 0.9rem; background: {% if orden.estado == 'pendiente' %}#95a5a6{% elif orden.estado == 'confirmada' %}#3498db{% elif orden.estado == 'enviada' %}#f39c12{% else %}#27ae60{% endif %};">
+                                    {{ orden.get_estado_display }}
+                                </span>
+                            </td>
+                            <td style="padding: 1rem;">{{ orden.fecha_entrega_esperada|date:"d/m/Y" }}</td>
+                            <td style="text-align: right; padding: 1rem;"><strong>${{ orden.calcular_total_estimado|floatformat:0 }}</strong></td>
+                            <td style="text-align: center; padding: 1rem;">
+                                <a href="{% url 'ver_orden_compra' orden.id %}" style="padding: 0.5rem 1rem; background: #3498db; color: white; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.3s ease; display: inline-block;" onmouseover="this.style.backgroundColor='#2980b9'" onmouseout="this.style.backgroundColor='#3498db'">
+                                    Ver Detalles
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ÚLTIMOS MOVIMIENTOS -->
+    <div style="background: white; border-radius: 12px; padding: 0; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08); overflow: hidden;">
+        <div style="background: linear-gradient(135deg, #27ae60 0%, #229954 100%); color: white; padding: 1.5rem; border-bottom: 1px solid #1e8449;">
+            <h5 style="margin: 0; font-weight: 600; font-size: 1.1rem;"><i class="bi bi-arrow-left-right"></i> Últimos Movimientos de Inventario</h5>
+        </div>
+        <div style="padding: 1.5rem;">
+            {% if movimientos_recientes %}
+            <div class="table-responsive">
+                <table class="table table-hover" style="margin-bottom: 0;">
+                    <thead style="background: #f8f9fa;">
+                        <tr>
+                            <th style="color: #2c3e50; font-weight: 600; padding: 1rem;">Fecha</th>
+                            <th style="color: #2c3e50; font-weight: 600; padding: 1rem;">Producto</th>
+                            <th style="color: #2c3e50; font-weight: 600; padding: 1rem;">Tipo</th>
+                            <th style="color: #2c3e50; font-weight: 600; text-align: center; padding: 1rem;">Cantidad</th>
+                            <th style="color: #2c3e50; font-weight: 600; padding: 1rem;">Stock Antes → Después</th>
+                            <th style="color: #2c3e50; font-weight: 600; padding: 1rem;">Usuario</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for mov in movimientos_recientes %}
+                        <tr>
+                            <td style="padding: 1rem;">{{ mov.fecha|date:"d/m/Y H:i" }}</td>
+                            <td style="padding: 1rem;">{{ mov.producto.titulo }}</td>
+                            <td style="padding: 1rem;">
+                                <span class="badge" style="padding: 0.5rem 1rem; font-size: 0.9rem; background: {% if 'entrada' in mov.tipo %}#27ae60{% else %}#e74c3c{% endif %};">
+                                    {{ mov.get_tipo_display }}
+                                </span>
+                            </td>
+                            <td style="text-align: center; padding: 1rem;"><strong>{{ mov.cantidad }}</strong></td>
+                            <td style="padding: 1rem;">{{ mov.stock_anterior }} → {{ mov.stock_posterior }}</td>
+                            <td style="padding: 1rem;">{{ mov.usuario.username }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p style="text-align: center; padding: 2rem; color: #95a5a6; margin: 0;">No hay movimientos registrados</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- AUDITORIAS COMPLETADAS -->
+    <div style="background: white; border-radius: 12px; padding: 0; margin-top: 2rem; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08); overflow: hidden;">
+        <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 1.5rem; border-bottom: 1px solid #2ab5e0;">
+            <h5 style="margin: 0; font-weight: 600; font-size: 1.1rem;"><i class="bi bi-clipboard-check"></i> Auditorias Completadas Recientes</h5>
+        </div>
+        <div style="padding: 1.5rem;">
+            {% if auditorias_completadas %}
+            <div class="table-responsive">
+                <table class="table table-hover" style="margin-bottom: 0;">
+                    <thead style="background: #f8f9fa;">
+                        <tr>
+                            <th style="color: #2c3e50; font-weight: 600; padding: 1rem;">Número</th>
+                            <th style="color: #2c3e50; font-weight: 600; padding: 1rem;">Tipo</th>
+                            <th style="color: #2c3e50; font-weight: 600; text-align: center; padding: 1rem;">Productos</th>
+                            <th style="color: #2c3e50; font-weight: 600; padding: 1rem;">Creada Por</th>
+                            <th style="color: #2c3e50; font-weight: 600; padding: 1rem;">Finalizada</th>
+                            <th style="color: #2c3e50; font-weight: 600; text-align: center; padding: 1rem; white-space: nowrap;">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for auditoria in auditorias_completadas %}
+                        <tr>
+                            <td style="padding: 1rem;"><strong style="color: #2980b9;">{{ auditoria.numero_auditoria }}</strong></td>
+                            <td style="padding: 1rem;">
+                                <span class="badge" style="padding: 0.5rem 1rem; font-size: 0.9rem; background: #9b59b6;">
+                                    {{ auditoria.get_tipo_display }}
+                                </span>
+                            </td>
+                            <td style="text-align: center; padding: 1rem;"><strong>{{ auditoria.detalles.count }}</strong></td>
+                            <td style="padding: 1rem;">{{ auditoria.usuario_creador.username }}</td>
+                            <td style="padding: 1rem;">{{ auditoria.fecha_finalizacion|date:"d/m/Y H:i" }}</td>
+                            <td style="text-align: center; padding: 1rem; white-space: nowrap;">
+                                <a href="{% url 'revisar_auditoria' auditoria.id %}" style="padding: 0.5rem 1rem; background: #3498db; color: white; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.3s ease; display: inline-block;" onmouseover="this.style.backgroundColor='#2980b9'" onmouseout="this.style.backgroundColor='#3498db'">
+                                    Ver Detalles
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p style="text-align: center; padding: 2rem; color: #95a5a6; margin: 0;">No hay auditorias completadas</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- TODOS LOS PRODUCTOS -->
+    <div style="background: white; border-radius: 12px; padding: 0; margin-top: 3rem; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08); overflow: hidden;">
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1.5rem; border-bottom: 1px solid #5568d3;">
+            <h5 style="margin: 0; font-weight: 600; font-size: 1.1rem;"><i class="bi bi-boxes"></i> Todos los Productos del Inventario</h5>
+        </div>
+        
+        <!-- Filtros -->
+        <div style="padding: 1.5rem; background: #f8f9fa; border-bottom: 1px solid #ecf0f1;">
+            <form id="filtrosForm" class="row g-3">
+                <div class="col-md-4">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50; font-size: 0.9rem;">Categoría</label>
+                    <select id="categoria" name="categoria" class="form-select" style="border: 1px solid #bdc3c7; border-radius: 8px; padding: 0.7rem;">
+                        <option value="">Todas las Categorías</option>
+                        {% for categoria in categorias %}
+                            <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50; font-size: 0.9rem;">Stock Mínimo</label>
+                    <input type="number" id="stock_min" name="stock_min" class="form-control" placeholder="Ej: 0" style="border: 1px solid #bdc3c7; border-radius: 8px; padding: 0.7rem;">
+                </div>
+                <div class="col-md-4">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50; font-size: 0.9rem;">Stock Máximo</label>
+                    <input type="number" id="stock_max" name="stock_max" class="form-control" placeholder="Ej: 100" style="border: 1px solid #bdc3c7; border-radius: 8px; padding: 0.7rem;">
+                </div>
+                <div class="col-md-12">
+                    <button type="button" onclick="aplicarFiltros()" style="padding: 0.7rem 1.5rem; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                        <i class="bi bi-search"></i> Filtrar
+                    </button>
+                    <button type="button" onclick="limpiarFiltros()" style="margin-left: 0.5rem; padding: 0.7rem 1.5rem; background: #ecf0f1; color: #2c3e50; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.backgroundColor='#d5dfe6'" onmouseout="this.style.backgroundColor='#ecf0f1'">
+                        <i class="bi bi-arrow-clockwise"></i> Limpiar
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Tabla de Todos los Productos -->
+        <div style="padding: 1.5rem;" id="tabla-productos">
+            <div class="table-responsive">
+                <table class="table table-hover" style="margin-bottom: 0;">
+                    <thead style="background: #f8f9fa;">
+                        <tr>
+                            <th style="color: #2c3e50; font-weight: 600; padding: 1rem;">Producto</th>
+                            <th style="color: #2c3e50; font-weight: 600; text-align: center; padding: 1rem;">Categoría</th>
+                            <th style="color: #2c3e50; font-weight: 600; text-align: center; padding: 1rem;">Stock Actual</th>
+                            <th style="color: #2c3e50; font-weight: 600; text-align: center; padding: 1rem;">Mín</th>
+                            <th style="color: #2c3e50; font-weight: 600; text-align: center; padding: 1rem;">Máx</th>
+                            <th style="color: #2c3e50; font-weight: 600; text-align: center; padding: 1rem;">Estado</th>
+                            <th style="color: #2c3e50; font-weight: 600; text-align: center; padding: 1rem; white-space: nowrap;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for producto in todos_productos %}
+                        <tr>
+                            <td style="padding: 1rem;"><strong>{{ producto.titulo }}</strong></td>
+                            <td style="text-align: center; padding: 1rem;">{{ producto.categoria.nombre|default:"Sin categoría" }}</td>
+                            <td style="text-align: center; padding: 1rem;">
+                                <span class="badge" style="padding: 0.5rem 1rem; font-size: 0.9rem; background: {% if producto.stock < producto.stock_minimo %}#e74c3c{% elif producto.stock > producto.stock_maximo %}#f39c12{% else %}#27ae60{% endif %};">
+                                    {{ producto.stock }}
+                                </span>
+                            </td>
+                            <td style="text-align: center; padding: 1rem;">{{ producto.stock_minimo }}</td>
+                            <td style="text-align: center; padding: 1rem;">{{ producto.stock_maximo }}</td>
+                            <td style="text-align: center; padding: 1rem;">
+                                {% if producto.stock < producto.stock_minimo %}
+                                    <span class="badge" style="background: #e74c3c; padding: 0.4rem 0.8rem; font-size: 0.85rem;">Bajo Stock</span>
+                                {% elif producto.stock > producto.stock_maximo %}
+                                    <span class="badge" style="background: #f39c12; padding: 0.4rem 0.8rem; font-size: 0.85rem;">Exceso</span>
+                                {% else %}
+                                    <span class="badge" style="background: #27ae60; padding: 0.4rem 0.8rem; font-size: 0.85rem;">Normal</span>
+                                {% endif %}
+                            </td>
+                            <td style="text-align: center; padding: 1rem; white-space: nowrap;">
+                                <a href="{% url 'registrar_movimiento' producto.id %}" style="display: inline-block; padding: 0.5rem 1rem; background: #667eea; color: white; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.3s ease;" onmouseover="this.style.backgroundColor='#5568d3'" onmouseout="this.style.backgroundColor='#667eea'">
+                                    <i class="bi bi-arrow-left-right"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 2rem; color: #95a5a6;">No hay productos que coincidan con los filtros</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    .badge {
+        font-weight: 600;
+    }
+</style>
+
+<script>
+function aplicarFiltros() {
+    const categoria = document.getElementById('categoria').value;
+    const stock_min = document.getElementById('stock_min').value;
+    const stock_max = document.getElementById('stock_max').value;
+    
+    // Construir URL con parámetros
+    const params = new URLSearchParams();
+    if (categoria) params.append('categoria', categoria);
+    if (stock_min) params.append('stock_min', stock_min);
+    if (stock_max) params.append('stock_max', stock_max);
+    
+    // Hacer petición AJAX
+    fetch(`{% url 'gestionar_inventario' %}?${params.toString()}`, {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.text())
+    .then(html => {
+        // Extraer solo la tabla de productos
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const nuevaTabla = doc.querySelector('#tabla-productos');
+        
+        if (nuevaTabla) {
+            document.querySelector('#tabla-productos').innerHTML = nuevaTabla.innerHTML;
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+function limpiarFiltros() {
+    document.getElementById('categoria').value = '';
+    document.getElementById('stock_min').value = '';
+    document.getElementById('stock_max').value = '';
+    aplicarFiltros();
+}
+
+// Permitir filtrar con Enter
+document.addEventListener('DOMContentLoaded', function() {
+    const inputs = document.querySelectorAll('#categoria, #stock_min, #stock_max');
+    inputs.forEach(input => {
+        input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                aplicarFiltros();
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

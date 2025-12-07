@@ -1,0 +1,109 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Política de Privacidad - Cueva del Androide</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="{% static 'css/catalogo.css' %}?v=1.0">
+  <link rel="stylesheet" href="{% static 'css/navbar.css' %}?v=5.1">
+  <link rel="stylesheet" href="{% static 'css/footer.css' %}?v=1.0">
+</head>
+<body>
+  {% include 'includes/navbar.html' %}
+
+  <main class="container my-5">
+    <div class="bg-white rounded shadow-sm p-4">
+      <h1 class="mb-4">Política de Privacidad</h1>
+
+      <p class="lead">En Cueva del Androide nos comprometemos a proteger la privacidad de nuestros usuarios conforme a la Ley 19.628 de Protección de Datos Personales en Chile.</p>
+
+      <h3 class="mt-4">1. Información que recopilamos</h3>
+      <ul>
+        <li><strong>Datos de registro:</strong> Nombre completo, email, teléfono, dirección</li>
+        <li><strong>Datos de compra:</strong> Historial de pedidos, preferencias de productos</li>
+        <li><strong>Datos técnicos:</strong> IP, tipo de navegador, páginas visitadas (sin datos personales identificables)</li>
+        <li><strong>Cookies:</strong> Para mejorar experiencia de navegación</li>
+      </ul>
+
+      <h3 class="mt-4">2. ¿Para qué usamos esta información?</h3>
+      <ul>
+        <li>Procesar y entregar tus pedidos</li>
+        <li>Enviar confirmaciones y notificaciones de compra</li>
+        <li>Responder consultas y reclamos</li>
+        <li>Mejorar nuestros productos y servicios</li>
+        <li>Detectar fraude y garantizar seguridad</li>
+        <li>Cumplir con obligaciones legales y fiscales</li>
+      </ul>
+
+      <h3 class="mt-4">3. Derechos ARCO</h3>
+      <p>Conforme a la Ley 19.628, tienes derecho a:</p>
+      <ul>
+        <li><strong>Acceso:</strong> Solicitar qué datos tenemos sobre ti</li>
+        <li><strong>Rectificación:</strong> Corregir datos incorrectos</li>
+        <li><strong>Cancelación:</strong> Solicitar eliminación de tus datos</li>
+        <li><strong>Oposición:</strong> Rechazar usos específicos de tus datos</li>
+      </ul>
+      <p>Para ejercer estos derechos, contáctanos a <a href="mailto:contacto@cuevadeandroide.cl">contacto@cuevadeandroide.cl</a></p>
+
+      <h3 class="mt-4">4. Responsable de tus datos</h3>
+      <p>Cueva del Androide es responsable por la protección y correcta utilización de tus datos personales. Disponemos de medidas de seguridad técnicas, administrativas y físicas para proteger tu información.</p>
+
+      <h3 class="mt-4">5. Retención de datos</h3>
+      <ul>
+        <li><strong>Datos de compra:</strong> Se conservan por 5 años (obligación fiscal)</li>
+        <li><strong>Datos de cliente inactivo:</strong> Se conservan por 2 años y pueden eliminarse a solicitud</li>
+        <li><strong>Cookies:</strong> Se eliminan automáticamente según se configuren</li>
+      </ul>
+
+      <h3 class="mt-4">6. Compartición de datos</h3>
+      <p>Tus datos NO se venden. Solo se comparten con:</p>
+      <ul>
+        <li>Proveedores de envío (solo dirección de entrega)</li>
+        <li>Plataforma de pago (Mercado Pago) - conforme a su política</li>
+        <li>Autoridades, cuando legalmente se requiera</li>
+      </ul>
+
+      <h3 class="mt-4">7. Cookies y tecnologías de rastreo</h3>
+      <p>Usamos cookies para:</p>
+      <ul>
+        <li>Mantener tu sesión activa</li>
+        <li>Recordar tus preferencias</li>
+        <li>Analizar uso del sitio (sin identificarte)</li>
+      </ul>
+      <p>Puedes desactivar cookies en tu navegador, pero algunas funciones pueden no trabajar correctamente.</p>
+
+      <h3 class="mt-4">8. Seguridad</h3>
+      <p>Implementamos:</p>
+      <ul>
+        <li>Encriptación SSL/TLS para transmisión de datos</li>
+        <li>Contraseñas hasheadas (no almacenamos contraseñas en texto plano)</li>
+        <li>Acceso restringido a información sensible</li>
+        <li>Auditoría de cambios en la base de datos</li>
+      </ul>
+
+      <h3 class="mt-4">9. Cambios a esta política</h3>
+      <p>Podemos actualizar esta política ocasionalmente. Los cambios significativos se notificarán por email o mediante banner en el sitio.</p>
+
+      <h3 class="mt-4">10. Contacto</h3>
+      <p>Para preguntas sobre privacidad o para ejercer derechos ARCO:</p>
+      <ul>
+        <li>Email: <a href="mailto:contacto@cuevadeandroide.cl">contacto@cuevadeandroide.cl</a></li>
+        <li>Teléfono: +56 9 7153 0113</li>
+        <li>Dirección: Almagro 432, Los Ángeles, Bío Bío</li>
+      </ul>
+
+      <p class="text-muted mt-4"><small>Última actualización: 30 de noviembre de 2025</small></p>
+    </div>
+  </main>
+
+  {% include 'includes/footer.html' %}
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{% static 'js/menu.js' %}?v=1.0"></script>
+</body>
+</html>

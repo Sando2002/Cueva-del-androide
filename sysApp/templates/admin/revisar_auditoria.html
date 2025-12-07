@@ -1,0 +1,388 @@
+{% extends 'admin/base_admin.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container" style="padding: 2rem; max-width: 1200px;">
+    <div style="margin-bottom: 2rem;">
+        <h2 style="font-size: 2rem; color: #2c3e50; margin-bottom: 0.5rem;">📊 Revisar Auditoría</h2>
+        <p style="color: #7f8c8d;">
+            Auditoría <strong>{{ auditoria.get_tipo_display }}</strong> 
+            - Iniciada el {{ auditoria.fecha_inicio|date:"d/m/Y H:i" }}
+        </p>
+    </div>
+
+    <!-- Información de la Auditoría -->
+    <div class="card" style="border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+        <div class="card-body" style="padding: 2rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+                <div>
+                    <small style="color: #7f8c8d; font-weight: 600;">Tipo</small>
+                    <p style="margin: 0.5rem 0 0 0; font-size: 1.1rem; color: #2c3e50;">
+                        {{ auditoria.get_tipo_display }}
+                    </p>
+                </div>
+                <div>
+                    <small style="color: #7f8c8d; font-weight: 600;">Estado</small>
+                    <p style="margin: 0.5rem 0 0 0; font-size: 1.1rem;">
+                        {% if auditoria.estado == 'pendiente' %}
+                            <span style="background: #e8f4f8; color: #3498db; padding: 0.25rem 0.75rem; border-radius: 20px; font-weight: 600;">
+                                ⏳ Pendiente
+                            </span>
+                        {% elif auditoria.estado == 'en_proceso' %}
+                            <span style="background: #fff3cd; color: #856404; padding: 0.25rem 0.75rem; border-radius: 20px; font-weight: 600;">
+                                🔄 En Proceso
+                            </span>
+                        {% else %}
+                            <span style="background: #d4edda; color: #155724; padding: 0.25rem 0.75rem; border-radius: 20px; font-weight: 600;">
+                                ✓ Completada
+                            </span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div>
+                    <small style="color: #7f8c8d; font-weight: 600;">Total Productos</small>
+                    <p style="margin: 0.5rem 0 0 0; font-size: 1.1rem; color: #2c3e50;">
+                        {{ detalles|length }} productos
+                    </p>
+                </div>
+                <div>
+                    <small style="color: #7f8c8d; font-weight: 600;">Discrepancias</small>
+                    <p style="margin: 0.5rem 0 0 0; font-size: 1.1rem;">
+                        <span style="color: {% if discrepancias_count > 0 %}#e74c3c{% else %}#27ae60{% endif %}; font-weight: 700;">
+                            {{ discrepancias_count }} encontradas
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resumen de Discrepancias -->
+    {% if discrepancias_count > 0 %}
+    <div style="padding: 1rem; background: #fadbd8; border: 2px solid #e74c3c; border-radius: 8px; margin-bottom: 2rem; display: flex; gap: 1rem;">
+        <span style="font-size: 1.5rem;">⚠️</span>
+        <div>
+            <strong style="color: #c0392b;">Se encontraron {{ discrepancias_count }} discrepancias</strong>
+            <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: #c0392b;">
+                Verifica los valores contados físicamente y ajusta según sea necesario. Los cambios se aplicarán directamente al inventario.
+            </p>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Filtros de Búsqueda -->
+    <div class="card" style="border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+        <div class="card-body" style="padding: 2rem;">
+            <h4 style="color: #2c3e50; margin-top: 0;">🔍 Filtros</h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50; font-size: 0.9rem;">
+                        Buscar Producto
+                    </label>
+                    <input type="text" id="filtro-producto" placeholder="Escribe el nombre..." 
+                           style="width: 100%; padding: 0.75rem; border: 2px solid #bdc3c7; border-radius: 6px; font-size: 0.95rem;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50; font-size: 0.9rem;">
+                        Ordenar por Precio
+                    </label>
+                    <select id="filtro-precio" style="width: 100%; padding: 0.75rem; border: 2px solid #bdc3c7; border-radius: 6px; font-size: 0.95rem;">
+                        <option value="">Sin ordenar</option>
+                        <option value="asc">💰 Menor a Mayor</option>
+                        <option value="desc">💰 Mayor a Menor</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50; font-size: 0.9rem;">
+                        Filtrar por Categoría
+                    </label>
+                    <select id="filtro-categoria" style="width: 100%; padding: 0.75rem; border: 2px solid #bdc3c7; border-radius: 6px; font-size: 0.95rem;">
+                        <option value="">Todas las categorías</option>
+                    </select>
+                </div>
+                <div style="display: flex; align-items: flex-end;">
+                    <button type="button" id="btn-limpiar-filtros" 
+                            style="width: 100%; padding: 0.75rem; background: #95a5a6; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                        🗑️ Limpiar Filtros
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulario de Auditoría -->
+    <form method="post" style="display: grid; gap: 2rem;">
+        {% csrf_token %}
+
+        <!-- Tabla de Productos -->
+        <div class="card" style="border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); overflow: hidden;">
+            <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
+                <table id="tabla-auditoria" style="width: 100%; border-collapse: collapse;">
+                    <thead style="position: sticky; top: 0; background: #34495e; color: white; font-weight: 600;">
+                        <tr>
+                            <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #2c3e50;">Producto</th>
+                            <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #2c3e50;">Categoría</th>
+                            <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #2c3e50;">Precio</th>
+                            <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #2c3e50;">Stock Sistema</th>
+                            <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #2c3e50;">Stock Físico</th>
+                            <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #2c3e50;">Diferencia</th>
+                            <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #2c3e50;">Observación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for detalle in detalles %}
+                        <tr class="fila-producto" 
+                            data-titulo="{{ detalle.producto.titulo|lower }}"
+                            data-categoria="{{ detalle.producto.categoria.nombre|lower }}"
+                            data-precio="{{ detalle.producto.precio }}"
+                            style="border-bottom: 1px solid #ecf0f1; {% if detalle.diferencia != 0 %}background: #fef5e7;{% endif %}">
+                            <td style="padding: 1rem;">
+                                <strong style="color: #2c3e50;">{{ detalle.producto.titulo }}</strong>
+                                <br>
+                                <small style="color: #7f8c8d;">SKU: {{ detalle.producto.id }}</small>
+                            </td>
+                            <td style="padding: 1rem; text-align: center;">
+                                <small style="color: #7f8c8d;">{{ detalle.producto.categoria.nombre }}</small>
+                            </td>
+                            <td style="padding: 1rem; text-align: center;">
+                                <small style="color: #7f8c8d;">${{ detalle.producto.precio }}</small>
+                            </td>
+                            <td style="padding: 1rem; text-align: center;">
+                                <span style="background: #ecf0f1; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; color: #2c3e50;">
+                                    {{ detalle.stock_sistema }}
+                                </span>
+                            </td>
+                            <td style="padding: 1rem; text-align: center;">
+                                <input type="number" name="stock_fisico_{{ detalle.id }}" value="{{ detalle.stock_fisico }}" 
+                                       class="stock-fisico" data-producto="{{ detalle.producto.id }}" data-sistema="{{ detalle.stock_sistema }}"
+                                       min="0"
+                                       style="width: 100px; padding: 0.5rem; border: 2px solid #bdc3c7; border-radius: 6px; text-align: center; font-weight: 600; font-size: 1rem;">
+                            </td>
+                            <td style="padding: 1rem; text-align: center;">
+                                <span class="diferencia-badge" style="background: #ecf0f1; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; color: #2c3e50; display: inline-block;">
+                                    0
+                                </span>
+                            </td>
+                            <td style="padding: 1rem; text-align: center;">
+                                <textarea name="observacion_{{ detalle.id }}" placeholder="Notas..." class="observacion"
+                                         style="width: 100%; padding: 0.5rem; border: 1px solid #bdc3c7; border-radius: 4px; font-size: 0.9rem; font-family: Arial; min-height: 50px; resize: none;">{{ detalle.observacion }}</textarea>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div style="padding: 1rem; background: #ecf0f1; text-align: center; font-weight: 600; color: #2c3e50;">
+                Mostrando <span id="contador-productos">{{ detalles|length }}</span> de {{ detalles|length }} productos
+            </div>
+        </div>
+
+        <!-- Resumen Final -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div style="padding: 1.5rem; background: #d5f4e6; border-radius: 8px; border-left: 4px solid #27ae60;">
+                <small style="color: #16a085; display: block; margin-bottom: 0.5rem;">✓ Productos Correctos</small>
+                <h3 id="correctos-count" style="margin: 0; color: #27ae60;">0</h3>
+            </div>
+            <div style="padding: 1.5rem; background: #fadbd8; border-radius: 8px; border-left: 4px solid #e74c3c;">
+                <small style="color: #c0392b; display: block; margin-bottom: 0.5rem;">⚠️ Productos con Diferencia</small>
+                <h3 id="diferencias-count" style="margin: 0; color: #e74c3c;">0</h3>
+            </div>
+        </div>
+
+        <!-- Observación General -->
+        <div>
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50;">
+                Observación General / Conclusiones
+            </label>
+            <textarea name="observaciones" rows="4" placeholder="Ej: Se encontraron discrepancias debidas a..."
+                      style="width: 100%; padding: 0.75rem; border: 1px solid #bdc3c7; border-radius: 6px; font-size: 1rem; font-family: Arial;">{{ auditoria.observaciones }}</textarea>
+        </div>
+
+        <!-- Botones -->
+        <div style="display: flex; gap: 1rem;">
+            <button type="submit" name="action" value="finalizar" class="btn btn-success" style="flex: 1; padding: 0.75rem; font-weight: 600;">
+                <i class="bi bi-check-circle"></i> Finalizar Auditoría y Ajustar Inventario
+            </button>
+            <a href="{% url 'cancelar_auditoria' auditoria.id %}" class="btn btn-danger" style="flex: 1; padding: 0.75rem; text-decoration: none; text-align: center; font-weight: 600;" onclick="return confirm('¿Estás seguro de que quieres cancelar esta auditoría? No se harán cambios en el inventario.')">
+                <i class="bi bi-x-circle"></i> Cancelar Auditoría
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const stockFisicos = document.querySelectorAll('.stock-fisico');
+    const filtroProducto = document.getElementById('filtro-producto');
+    const filtroPrecio = document.getElementById('filtro-precio');
+    const filtroCategoria = document.getElementById('filtro-categoria');
+    const btnLimpiar = document.getElementById('btn-limpiar-filtros');
+    const tablaAuditoria = document.getElementById('tabla-auditoria');
+    const contadorProductos = document.getElementById('contador-productos');
+    
+    // ============ GENERAR CATEGORÍAS ÚNICAS ============
+    function generarOpcionesCategorias() {
+        const categorias = new Set();
+        document.querySelectorAll('.fila-producto').forEach(fila => {
+            const categoria = fila.dataset.categoria;
+            if (categoria) {
+                categorias.add(categoria);
+            }
+        });
+        
+        // Limpiar opciones existentes (excepto la primera)
+        const opcionesExistentes = filtroCategoria.querySelectorAll('option:not(:first-child)');
+        opcionesExistentes.forEach(opt => opt.remove());
+        
+        // Agregar categorías únicas ordenadas
+        Array.from(categorias).sort().forEach(categoria => {
+            const option = document.createElement('option');
+            option.value = categoria;
+            option.textContent = categoria.charAt(0).toUpperCase() + categoria.slice(1);
+            filtroCategoria.appendChild(option);
+        });
+    }
+    
+    // ============ VALIDACIÓN DE VALORES NEGATIVOS ============
+    stockFisicos.forEach(input => {
+        input.addEventListener('change', function() {
+            if (this.value < 0 || this.value === '') {
+                this.value = 0;
+            }
+        });
+        
+        input.addEventListener('input', function() {
+            if (this.value.startsWith('-')) {
+                this.value = this.value.slice(1);
+            }
+        });
+    });
+
+    // ============ FUNCIONES DE DIFERENCIA Y RESUMEN ============
+    function actualizarDiferencia(input) {
+        const stockSistema = parseInt(input.dataset.sistema) || 0;
+        const stockFisico = parseInt(input.value) || 0;
+        const diferencia = stockFisico - stockSistema;
+        
+        const badge = input.closest('tr').querySelector('.diferencia-badge');
+        
+        if (diferencia === 0) {
+            badge.textContent = '✓ 0';
+            badge.style.background = '#d5f4e6';
+            badge.style.color = '#27ae60';
+        } else if (diferencia > 0) {
+            badge.textContent = '+' + diferencia;
+            badge.style.background = '#d6eaf8';
+            badge.style.color = '#2980b9';
+        } else {
+            badge.textContent = diferencia;
+            badge.style.background = '#fadbd8';
+            badge.style.color = '#e74c3c';
+        }
+        
+        actualizarResumen();
+    }
+
+    function actualizarResumen() {
+        let correctos = 0;
+        let conDiferencia = 0;
+        
+        // Solo contar filas visibles
+        document.querySelectorAll('.fila-producto:not([style*="display: none"])').forEach(fila => {
+            const input = fila.querySelector('.stock-fisico');
+            const stockSistema = parseInt(input.dataset.sistema) || 0;
+            const stockFisico = parseInt(input.value) || 0;
+            
+            if (stockFisico === stockSistema) {
+                correctos++;
+            } else {
+                conDiferencia++;
+            }
+        });
+        
+        document.getElementById('correctos-count').textContent = correctos;
+        document.getElementById('diferencias-count').textContent = conDiferencia;
+    }
+
+    // ============ FUNCIONES DE FILTRADO ============
+    function aplicarFiltros() {
+        const textoBusqueda = filtroProducto.value.toLowerCase();
+        const ordenPrecio = filtroPrecio.value;
+        const categoria = filtroCategoria.value.toLowerCase();
+        
+        let filas = Array.from(document.querySelectorAll('.fila-producto'));
+        
+        // Filtrar por texto de búsqueda y categoría
+        filas.forEach(fila => {
+            const titulo = fila.dataset.titulo;
+            const categoriaFila = fila.dataset.categoria;
+            
+            const coincideTexto = titulo.includes(textoBusqueda);
+            const coincideCategoria = categoria === '' || categoriaFila === categoria;
+            
+            if (coincideTexto && coincideCategoria) {
+                fila.style.display = '';
+            } else {
+                fila.style.display = 'none';
+            }
+        });
+        
+        // Ordenar por precio si está seleccionado
+        if (ordenPrecio !== '') {
+            const filasVisibles = filas.filter(f => f.style.display !== 'none');
+            
+            filasVisibles.sort((a, b) => {
+                const precioA = parseFloat(a.dataset.precio);
+                const precioB = parseFloat(b.dataset.precio);
+                
+                return ordenPrecio === 'asc' ? precioA - precioB : precioB - precioA;
+            });
+            
+            // Reorganizar en el DOM
+            const tbody = tablaAuditoria.querySelector('tbody');
+            filasVisibles.forEach(fila => {
+                tbody.appendChild(fila);
+            });
+        }
+        
+        // Actualizar contador
+        const filasVisibles = document.querySelectorAll('.fila-producto:not([style*="display: none"])');
+        contadorProductos.textContent = filasVisibles.length;
+        
+        actualizarResumen();
+    }
+    
+    function limpiarFiltros() {
+        filtroProducto.value = '';
+        filtroPrecio.value = '';
+        filtroCategoria.value = '';
+        
+        document.querySelectorAll('.fila-producto').forEach(fila => {
+            fila.style.display = '';
+        });
+        
+        contadorProductos.textContent = document.querySelectorAll('.fila-producto').length;
+        actualizarResumen();
+    }
+
+    // ============ EVENT LISTENERS ============
+    generarOpcionesCategorias(); // Generar categorías únicas
+    
+    filtroProducto.addEventListener('input', aplicarFiltros);
+    filtroPrecio.addEventListener('change', aplicarFiltros);
+    filtroCategoria.addEventListener('change', aplicarFiltros);
+    btnLimpiar.addEventListener('click', limpiarFiltros);
+
+    stockFisicos.forEach(input => {
+        input.addEventListener('input', function() {
+            actualizarDiferencia(this);
+        });
+    });
+
+    // Inicializar
+    stockFisicos.forEach(input => {
+        actualizarDiferencia(input);
+    });
+});
+</script>
+{% endblock %}

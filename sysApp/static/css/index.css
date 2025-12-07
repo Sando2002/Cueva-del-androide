@@ -1,0 +1,314 @@
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    width: 100%;
+    overflow-x: hidden;
+}
+
+body {
+    width: 100%;
+    overflow-x: hidden;
+    font-family: 'Poppins', Arial, sans-serif;
+}
+
+/* Animaciones */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* Página principal */
+.page-content {
+    width: 100%;
+    min-height: 100vh;
+    background-color: transparent;
+    padding: 20px 5px;
+    overflow-x: hidden;
+}
+
+/* Reducir espacios entre columnas */
+.page-content .row > [class*="col-"] {
+    padding-left: 2px;
+    padding-right: 2px;
+}
+
+/* Secciones de categoría */
+.section-category-large {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    width: 100%;
+    height: 400px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 15px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    animation: slideInScale 0.8s ease-out;
+}
+
+.section-category-large::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.1));
+    z-index: 1;
+}
+
+.section-category-large:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(154, 46, 197, 0.3);
+}
+
+.section-category {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    width: 100%;
+    height: 300px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    animation: slideInScale 0.8s ease-out;
+}
+
+.section-category::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.1));
+    z-index: 1;
+}
+
+.section-category:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(154, 46, 197, 0.3);
+}
+
+.section-category:hover::before,
+.section-category-large:hover::before {
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.05));
+}
+
+/* Labels de categoría */
+.category-label {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: linear-gradient(135deg, #9a2ec5, #c2185b);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    z-index: 2;
+    letter-spacing: 1px;
+    animation: fadeInDown 0.8s ease-out;
+}
+
+/* Links de categoría */
+.category-link {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-start;
+    padding: 20px;
+    text-decoration: none;
+    color: white;
+    z-index: 2;
+    transition: all 0.3s ease;
+    width: 100%;
+    height: 100%;
+}
+
+.category-link h2,
+.category-link h3 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease;
+}
+
+.category-link h3 {
+    font-size: 1.5rem;
+}
+
+.category-link p {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 8px 0 0 0;
+    text-shadow: 0 1px 5px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+.section-category:hover .category-link p,
+.section-category-large:hover .category-link p {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Reducir spacing vertical */
+.page-content .row.mb-5 {
+    margin-bottom: 15px !important;
+}
+
+.page-content [class*="col-"].mb-3 {
+    margin-bottom: 10px !important;
+}
+
+/* Responsividad */
+@media (max-width: 992px) {
+    .page-content {
+        padding: 15px;
+    }
+    
+    .section-category-large {
+        height: 350px;
+        margin-bottom: 25px;
+    }
+    
+    .section-category {
+        height: 280px;
+    }
+    
+    .category-link h2 {
+        font-size: 1.7rem;
+    }
+    
+    .category-link h3 {
+        font-size: 1.3rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .page-content {
+        padding: 12px;
+    }
+    
+    .section-category-large {
+        height: 280px;
+        margin-bottom: 20px;
+    }
+    
+    .section-category {
+        height: 220px;
+    }
+    
+    .category-label {
+        font-size: 0.65rem;
+        padding: 5px 10px;
+        top: 12px;
+        left: 12px;
+    }
+    
+    .category-link {
+        padding: 15px;
+    }
+    
+    .category-link h2 {
+        font-size: 1.5rem;
+    }
+    
+    .category-link h3 {
+        font-size: 1.1rem;
+    }
+    
+    .category-link p {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .page-content {
+        padding: 10px;
+    }
+    
+    .section-category-large {
+        height: 220px;
+        margin-bottom: 15px;
+    }
+    
+    .section-category {
+        height: 180px;
+    }
+    
+    .category-label {
+        font-size: 0.6rem;
+        padding: 4px 8px;
+        top: 10px;
+        left: 10px;
+    }
+    
+    .category-link {
+        padding: 12px;
+    }
+    
+    .category-link h2 {
+        font-size: 1.2rem;
+    }
+    
+    .category-link h3 {
+        font-size: 1rem;
+    }
+    
+    .category-link p {
+        font-size: 0.75rem;
+    }
+}

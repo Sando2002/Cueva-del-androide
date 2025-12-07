@@ -1,0 +1,248 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Política de Devoluciones - Cueva del Androide</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="{% static 'css/catalogo.css' %}?v=1.0">
+  <link rel="stylesheet" href="{% static 'css/navbar.css' %}?v=5.1">
+  <link rel="stylesheet" href="{% static 'css/footer.css' %}?v=1.0">
+  <link rel="stylesheet" href="{% static 'css/politicas.css' %}">
+</head>
+<body>
+  {% include 'includes/navbar.html' %}
+
+  <main class="container my-5">
+    <div class="bg-white rounded shadow-sm p-4">
+      <h1 class="mb-4">Política de Devoluciones</h1>
+
+      <p class="lead">En Cueva del Androide te ofrecemos la posibilidad de devolver tu compra dentro de <strong>30 días desde la fecha de compra</strong>, según lo dispuesto en la Ley 20.606 de Protección de Derechos del Consumidor en Chile.</p>
+
+      <h3 class="mt-4">¿Cuándo puedo devolver un producto?</h3>
+      <p>Tienes <strong>30 días corridos</strong> desde que recibiste tu producto para solicitar una devolución. El plazo comienza desde la fecha de entrega.</p>
+
+      <h3 class="mt-4">¿Qué productos puedo devolver?</h3>
+      <ul class="list-group">
+        <li class="list-group-item"><i class="fas fa-check text-success"></i> <strong>SÍ puedo devolver:</strong> Productos sin usar, en empaque original y con etiquetas</li>
+        <li class="list-group-item"><i class="fas fa-check text-success"></i> Productos con defecto de fábrica o daño en el envío</li>
+        <li class="list-group-item"><i class="fas fa-check text-success"></i> Productos que no corresponden al pedido</li>
+        <li class="list-group-item"><i class="fas fa-times text-danger"></i> <strong>NO puedo devolver:</strong> Productos usado o probado</li>
+        <li class="list-group-item"><i class="fas fa-times text-danger"></i> Productos en promoción o liquidación</li>
+        <li class="list-group-item"><i class="fas fa-times text-danger"></i> Productos personalizados o hechos a pedido</li>
+        <li class="list-group-item"><i class="fas fa-times text-danger"></i> Productos sin etiqueta o empaque original dañado</li>
+      </ul>
+
+      <h3 class="mt-4">¿Cuál es el proceso de devolución?</h3>
+      <div class="timeline mt-4">
+        <div class="timeline-item">
+          <div class="timeline-number">1</div>
+          <div class="timeline-content">
+            <h5>Contacta a soporte</h5>
+            <p>Envía un email a <strong>contacto@cuevadeandroide.cl</strong> con:</p>
+            <ul>
+              <li>Número de pedido</li>
+              <li>Motivo de devolución</li>
+              <li>Fotos del producto (si es defecto)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-number">2</div>
+          <div class="timeline-content">
+            <h5>Autorización de devolución</h5>
+            <p>Recibirás un email con:</p>
+            <ul>
+              <li>Código de RMA (número de devolución)</li>
+              <li>Instrucciones de retiro en tienda</li>
+              <li>Horarios de atención</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-number">3</div>
+          <div class="timeline-content">
+            <h5>Retira en tienda</h5>
+            <p>Acude a nuestro local con:</p>
+            <ul>
+              <li>Producto en empaque original e intacto</li>
+              <li>Código RMA visible</li>
+              <li>Cédula de identidad</li>
+            </ul>
+            <p><strong>Ubicación:</strong> [Completar con dirección]<br/>
+            <strong>Horario:</strong> L-J 11:15-19:45 | V-S 11:15-20:45</p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-number">4</div>
+          <div class="timeline-content">
+            <h5>Inspección y reembolso</h5>
+            <p>Cuando recibimos el producto en tienda:</p>
+            <ul>
+              <li>Inspeccionamos que esté en condiciones de venta</li>
+              <li>Procesamos el reembolso en <strong>10 días hábiles</strong></li>
+              <li>El dinero vuelve a tu medio de pago original</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="mt-4">¿Quién paga el envío de devolución?</h3>
+      <p class="alert alert-info">
+        <i class="fas fa-info-circle"></i> 
+        <strong>Nota importante:</strong> Nuestras devoluciones se realizan <strong>directamente en tienda</strong>, por lo que NO hay costo de envío. Solo debes dirigirte a nuestro local físico durante el horario de atención.
+      </p>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Situación</th>
+            <th>Cliente paga envío</th>
+            <th>Empresa paga envío</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Cambio de opinión (sin defecto)</td>
+            <td class="text-center"><i class="fas fa-check text-success"></i></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Producto defectuoso o dañado</td>
+            <td></td>
+            <td class="text-center"><i class="fas fa-check text-success"></i></td>
+          </tr>
+          <tr>
+            <td>Envío incorrecto o no corresponde</td>
+            <td></td>
+            <td class="text-center"><i class="fas fa-check text-success"></i></td>
+          </tr>
+          <tr>
+            <td>Producto no llegó</td>
+            <td></td>
+            <td class="text-center"><i class="fas fa-check text-success"></i></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="mt-4">¿Cuánto tiempo tengo para recibir mi reembolso?</h3>
+      <ul>
+        <li><strong>5-7 días hábiles:</strong> Para procesar inspección</li>
+        <li><strong>10 días hábiles:</strong> Para procesar reembolso</li>
+        <li><strong>3-5 días hábiles:</strong> Para que vea reflejado en tu cuenta (varía según banco)</li>
+        <li><strong>Total aprox.: 2-3 semanas</strong> desde que envías el producto</li>
+      </ul>
+
+      <h3 class="mt-4">¿Qué pasa si rechazo la devolución?</h3>
+      <p>Si el producto no cumple con las condiciones de devolución (usado, dañado, etc.), te lo enviaremos de vuelta sin costo adicional. El envío original NO se reembolsa.</p>
+
+      <h3 class="mt-4">¿Puedo intercambiar un producto en lugar de devolver?</h3>
+      <p>Sí. Si el motivo es defecto o error, podemos enviarte el producto correcto sin costo adicional. Envía un email a <strong>contacto@cuevadeandroide.cl</strong> con tu solicitud.</p>
+
+      <h3 class="mt-4">¿Qué pasa con el reembolso si pagué con tarjeta?</h3>
+      <p>El reembolso se acredita a la misma tarjeta usada. Según tu banco, puede tomar 3-5 días hábiles después de procesado el reembolso. Los bancos pueden retener dinero por motivos de seguridad.</p>
+
+      <h3 class="mt-4">¿Puedo devolver productos comprados en promoción?</h3>
+      <p><strong>No.</strong> Los productos comprados en promoción, rebaja o liquidación NO tienen derecho a devolución por cambio de opinión. Sí pueden devolverse si tienen defecto de fábrica.</p>
+
+      <h3 class="mt-4">¿Qué debo hacer si recibí un producto dañado?</h3>
+      <ol>
+        <li>Toma fotos del producto dañado y del empaque</li>
+        <li>Envía email a <strong>contacto@cuevadeandroide.cl</strong> dentro de <strong>48 horas</strong></li>
+        <li>Adjunta fotos y número de pedido</li>
+        <li>Levantaremos un reclamo y te enviaremos un código RMA</li>
+        <li>Nos encargamos del costo de envío de devolución</li>
+      </ol>
+
+      <h3 class="mt-4">¿Puedo devolver un producto después de 30 días?</h3>
+      <p>No. El plazo de 30 días es obligatorio por ley y es final. Pasado este tiempo, debes ejercer derechos de garantía legal (defectos de fábrica hasta 6 meses).</p>
+
+      <h3 class="mt-4">Dirección para devoluciones</h3>
+      <div class="alert alert-info">
+        <strong>Cueva del Androide</strong><br>
+        Almagro 432<br>
+        Los Ángeles, Bío Bío<br>
+        Chile<br>
+        <strong>Nota:</strong> Espera confirmación y código RMA antes de enviar
+      </div>
+
+      <h3 class="mt-4">Preguntas frecuentes</h3>
+      <div class="accordion" id="faqAccordion">
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+              ¿Puedo devolver ropa si la usé una vez?
+            </button>
+          </h2>
+          <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+            <div class="accordion-body">
+              No. Si el producto fue usado, probado o tiene signos de uso, no puede ser devuelto. Aunque sea una sola vez, se considera usado.
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+              ¿Qué es un defecto de fábrica?
+            </button>
+          </h2>
+          <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+            <div class="accordion-body">
+              Son problemas del producto que no son causados por el uso: costuras rotas, colores desigual, componentes defectuosos, empaque dañado, etc. No incluye daños por caídas, golpes o mal uso.
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+              ¿Puedo devolver un producto si está fuera de stock?
+            </button>
+          </h2>
+          <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+            <div class="accordion-body">
+              Sí. Si el producto devoluto no está disponible en stock, procesamos reembolso 100% sin costo adicional.
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+              ¿Debo esperar respuesta antes de enviar la devolución?
+            </button>
+          </h2>
+          <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+            <div class="accordion-body">
+              <strong>SÍ, es obligatorio.</strong> Debes esperar nuestro email con el código RMA y las instrucciones. Si envías sin autorización, rechazaremos el paquete.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="mt-4">Contacto</h3>
+      <p>Para consultas sobre devoluciones:</p>
+      <ul>
+        <li>Email: <strong>contacto@cuevadeandroide.cl</strong></li>
+        <li>WhatsApp: <strong>+56 9 7153 0113</strong></li>
+        <li>Horario: Lunes a Viernes, 09:00 a 18:00 hrs</li>
+      </ul>
+
+      <p class="text-muted mt-4"><small>Esta política cumple con la Ley 20.606 de Protección de Derechos del Consumidor en Chile. Última actualización: 30 de noviembre de 2025</small></p>
+    </div>
+  </main>
+
+  {% include 'includes/footer.html' %}
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{% static 'js/menu.js' %}?v=1.0"></script>
+</body>
+</html>

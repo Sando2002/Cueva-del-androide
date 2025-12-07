@@ -1,0 +1,139 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Términos y Condiciones - Cueva del Androide</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="{% static 'css/catalogo.css' %}?v=1.0">
+  <link rel="stylesheet" href="{% static 'css/navbar.css' %}?v=5.1">
+  <link rel="stylesheet" href="{% static 'css/footer.css' %}?v=1.0">
+</head>
+<body>
+  {% include 'includes/navbar.html' %}
+
+  <main class="container my-5">
+    <div class="bg-white rounded shadow-sm p-4">
+      <h1 class="mb-4">Términos y Condiciones</h1>
+
+      <p class="lead">Al usar este sitio web y realizar compras, aceptas estos términos conforme a la legislación chilena (Ley 20.606, Código de Consumidor y Ley 21.082).</p>
+
+      <h3 class="mt-4">1. Definiciones</h3>
+      <ul>
+        <li><strong>Sitio:</strong> www.cuevadeandroide.cl</li>
+        <li><strong>Empresa:</strong> Cueva del Androide (RUT: XX.XXX.XXX-X - completar con datos reales)</li>
+        <li><strong>Usuario:</strong> Cualquier persona que accede o compra en el sitio</li>
+        <li><strong>Comprador:</strong> Usuario que realiza una transacción comercial</li>
+      </ul>
+
+      <h3 class="mt-4">2. Aceptación de términos</h3>
+      <p>Al acceder y usar este sitio web, aceptas plenamente estos términos. Si no estás de acuerdo, no uses el sitio. Nos reservamos el derecho de cambiar estos términos en cualquier momento.</p>
+
+      <h3 class="mt-4">3. Acceso y uso</h3>
+      <ul>
+        <li>Debes ser mayor de 18 años para comprar</li>
+        <li>Eres responsable por la confidencialidad de tu contraseña</li>
+        <li>No puedes usar el sitio para actividades ilegales o no autorizadas</li>
+        <li>Nos reservamos el derecho de suspender acceso sin previo aviso</li>
+      </ul>
+
+      <h3 class="mt-4">4. Productos y disponibilidad</h3>
+      <ul>
+        <li>Las descripciones de productos son lo más precisas posibles</li>
+        <li>Los precios pueden cambiar sin previo aviso</li>
+        <li>La disponibilidad está sujeta a stock actual</li>
+        <li>Nos reservamos el derecho de rechazar pedidos</li>
+      </ul>
+
+      <h3 class="mt-4">5. Precios y formas de pago</h3>
+      <ul>
+        <li>Los precios mostrados incluyen impuestos (IVA 19%)</li>
+        <li>Se aceptan: Mercado Pago, tarjetas débito/crédito</li>
+        <li>El precio final se confirma antes de procesar el pago</li>
+        <li>No reembolsamos diferencias de cambio de moneda</li>
+      </ul>
+
+      <h3 class="mt-4">6. Proceso de compra</h3>
+      <ol>
+        <li>Selecciona productos y agrégalos al carrito</li>
+        <li>Completa tu información de contacto</li>
+        <li>Elige método de pago (transferencia, tarjeta, efectivo en tienda)</li>
+        <li>Serás redirigido a Mercado Pago para procesar pago (si aplica)</li>
+        <li>Recibirás confirmación por email con número de pedido y horarios de retiro</li>
+      </ol>
+      <p><strong>Importante:</strong> Todos los pedidos son <strong>RETIRO EN TIENDA</strong>. No realizamos envíos a domicilio.</p>
+
+      <h3 class="mt-4">7. Garantía legal</h3>
+      <p>Conforme a las leyes chilenas, los productos tienen garantía legal de:</p>
+      <ul>
+        <li><strong>6 meses:</strong> Para productos electrónicos y de marroquinería</li>
+        <li><strong>1 año:</strong> Para prendas de vestir y accesorios</li>
+        <li><strong>Cobertura:</strong> Defectos de fabricación, vicios ocultos</li>
+        <li><strong>Excluye:</strong> Daño por mal uso, accidentes o negligencia del usuario</li>
+      </ul>
+
+      <h3 class="mt-4">8. Política de devoluciones (30 días)</h3>
+      <p>Tienes <strong>30 días desde la compra</strong> para devolver productos (Ley 20.606):</p>
+      <ul>
+        <li>Producto debe estar sin usar, en empaque original</li>
+        <li>Excluye productos en promoción, liquidación o personalizados</li>
+        <li><strong>RETIRO DE DEVOLUCIONES EN TIENDA:</strong> Sin costo de envío</li>
+        <li>Reembolso se procesa dentro de 10 días hábiles tras recibir devolución</li>
+      </ul>
+      <p><strong>Para devolver:</strong> Envía email a contacto@cuevadeandroide.cl con número de pedido y motivo. Recibirás código RMA e instrucciones de retiro en tienda.</p>
+
+      <h3 class="mt-4">9. Retiro en Tienda</h3>
+      <ul>
+        <li><strong>Únicamente vendemos con retiro en tienda.</strong> No realizamos envíos a domicilio</li>
+        <li>Tiempos de preparación: 24-48 horas hábiles según disponibilidad</li>
+        <li>Horario: Lunes a Jueves 11:15-19:45 | Viernes a Sábado 11:15-20:45</li>
+        <li>Ver detalles completos en <a href="{% url 'politica_envios' %}">Política de Retiro en Tienda</a></li>
+      </ul>
+
+      <h3 class="mt-4">10. Responsabilidades y limitaciones</h3>
+      <p><strong>Cueva del Androide NO es responsable por:</strong></p>
+      <ul>
+        <li>Daños causados por terceros (transportistas, plataformas de pago)</li>
+        <li>Daños por mal uso de productos</li>
+        <li>Pérdida de ganancias o daño indirecto</li>
+        <li>Indisponibilidad temporal del sitio</li>
+        <li>Retrasos por casos de fuerza mayor</li>
+      </ul>
+
+      <h3 class="mt-4">11. Propiedad intelectual</h3>
+      <ul>
+        <li>Todos los contenidos del sitio (textos, imágenes, logos) son propiedad de Cueva del Androide</li>
+        <li>No puedes reproducir, distribuir o modificar sin autorización</li>
+        <li>Los derechos de autor están protegidos por ley</li>
+      </ul>
+
+      <h3 class="mt-4">12. Resolución de conflictos</h3>
+      <ul>
+        <li>Primero intentaremos resolver de mutuo acuerdo</li>
+        <li>Los conflictos se rigen por leyes de la República de Chile</li>
+        <li>Competencia de juzgados de Los Ángeles</li>
+        <li>Puedes presentar reclamo ante SERNAC: <a href="https://www.sernac.cl" target="_blank">www.sernac.cl</a></li>
+      </ul>
+
+      <h3 class="mt-4">13. Contacto y soporte</h3>
+      <ul>
+        <li>Email: <a href="mailto:contacto@cuevadeandroide.cl">contacto@cuevadeandroide.cl</a></li>
+        <li>WhatsApp: +56 9 7153 0113</li>
+        <li>Horario: Lunes a Viernes, 09:00 a 18:00 hrs</li>
+        <li>Dirección: Almagro 432, Los Ángeles, Bío Bío</li>
+      </ul>
+
+      <p class="text-muted mt-4"><small>Última actualización: 30 de noviembre de 2025</small></p>
+    </div>
+  </main>
+
+  {% include 'includes/footer.html' %}
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{% static 'js/menu.js' %}?v=1.0"></script>
+</body>
+</html>

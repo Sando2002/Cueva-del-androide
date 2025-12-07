@@ -1,0 +1,210 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block content %}
+<div class="container-fluid" style="padding: 2rem;">
+    <h1 style="margin: 0 0 2rem 0; font-size: 2.5rem; font-weight: 700; color: #2c3e50;">Gestión de Pedidos</h1>
+
+    <!-- Filtros -->
+    <div style="background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);">
+        <form id="filtrosPedidos" class="row g-3">
+            <div class="col-md-9">
+                <label style="color: #2c3e50; font-weight: 600; margin-bottom: 0.5rem; display: block;">Filtrar por estado:</label>
+                <select id="estado_pedidos" name="estado" class="form-select" style="border: 1px solid #ecf0f1; border-radius: 8px; padding: 0.8rem; color: #2c3e50;" onchange="aplicarFiltrosPedidos()">
+                    <option value="">Todos</option>
+                    <option value="pendiente">Pendientes de Pago</option>
+                    <option value="en_preparacion">En Preparación</option>
+                    <option value="listo">Listos para Recoger</option>
+                    <option value="recogido">Recogidos</option>
+                    <option value="rechazado">Rechazados</option>
+                    <option value="cancelado">Cancelados</option>
+                </select>
+            </div>
+            <div class="col-md-3" style="display: flex; align-items: flex-end;">
+                <button type="button" class="btn w-100" style="background: #ecf0f1; color: #2c3e50; border: none; border-radius: 8px; padding: 0.8rem; font-weight: 600; transition: all 0.3s ease;" onclick="limpiarFiltrosPedidos()" onmouseover="this.style.backgroundColor='#d5dfe6'" onmouseout="this.style.backgroundColor='#ecf0f1'">
+                    <i class="bi bi-arrow-clockwise"></i> Limpiar
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div style="background: white; border-radius: 12px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08); overflow: hidden;" id="tabla-admin-pedidos">
+        <div class="table-responsive">
+            <table class="table table-hover" style="margin-bottom: 0;">
+                <colgroup>
+                    <col style="width: 12%;">
+                    <col style="width: 20%;">
+                    <col style="width: 12%;">
+                    <col style="width: 18%;">
+                    <col style="width: 18%;">
+                    <col style="width: 20%;">
+                </colgroup>
+                <thead style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);">
+                    <tr>
+                        <th style="color: #2c3e50; font-weight: 600; padding: 1.5rem; vertical-align: middle;">Pedido</th>
+                        <th style="color: #2c3e50; font-weight: 600; vertical-align: middle;">Cliente</th>
+                        <th style="color: #2c3e50; font-weight: 600; vertical-align: middle;">Total</th>
+                        <th style="color: #2c3e50; font-weight: 600; vertical-align: middle; text-align: center;">Estado</th>
+                        <th style="color: #2c3e50; font-weight: 600; vertical-align: middle;">Fecha</th>
+                        <th style="color: #2c3e50; font-weight: 600; vertical-align: middle; text-align: center;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pedido in pedidos %}
+                    <tr style="border-bottom: 1px solid #ecf0f1; transition: background-color 0.2s ease; vertical-align: middle;" onmouseover="this.style.backgroundColor='#f8f9fa'" onmouseout="this.style.backgroundColor=''">
+                        <td style="font-weight: 600; color: #667eea; padding: 1.5rem 0.75rem; vertical-align: middle;">#{{ pedido.numero_pedido }}</td>
+                        <td style="color: #2c3e50; padding: 1.5rem 0.75rem; vertical-align: middle;">{{ pedido.usuario.get_full_name|default:pedido.usuario.username }}</td>
+                        <td style="font-weight: 600; color: #2c3e50; padding: 1.5rem 0.75rem; vertical-align: middle;">${{ pedido.total }}</td>
+                        <td style="padding: 1.5rem 0.75rem; text-align: center; vertical-align: middle;">
+                            {% if pedido.estado == 'cancelado' or pedido.estado == 'rechazado' or pedido.estado == 'recogido' or pedido.estado == 'pendiente' %}
+                                <span class="badge" style="padding: 0.5rem 0.8rem; font-size: 0.85rem; {% if pedido.estado == 'cancelado' %}background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;{% elif pedido.estado == 'rechazado' %}background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;{% elif pedido.estado == 'recogido' %}background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); color: white;{% else %}background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white;{% endif %}">
+                                    {% if pedido.estado == 'cancelado' %}
+                                        Cancelado (Final)
+                                    {% elif pedido.estado == 'rechazado' %}
+                                        Rechazado (Final)
+                                    {% elif pedido.estado == 'recogido' %}
+                                        Recogido (Final)
+                                    {% elif pedido.estado == 'pendiente' %}
+                                        Pendiente de Pago
+                                    {% endif %}
+                            </span>
+                            {% elif pedido.estado == 'listo' %}
+                                <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                                    <span class="badge" style="padding: 0.5rem 0.8rem; font-size: 0.85rem; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; white-space: nowrap;">
+                                        Listo para Recoger
+                                    </span>
+                                    <form method="POST" action="{% url 'cambiar_estado_pedido' pedido.id %}" style="display:inline;">
+                                        {% csrf_token %}
+                                        <select name="estado" class="form-select form-select-sm" style="min-width: 180px;" onchange="this.form.submit()">
+                                            <option value="">Cambiar Estado</option>
+                                            <option value="recogido">→ Marcar como Recogido</option>
+                                            <option value="cancelado">→ Cancelar</option>
+                                        </select>
+                                    </form>
+                                </div>
+                            {% else %}
+                                <form method="POST" action="{% url 'cambiar_estado_pedido' pedido.id %}" style="display:inline;">
+                                    {% csrf_token %}
+                                    <select name="estado" class="form-select form-select-sm" onchange="this.form.submit()">
+                                        {% if pedido.estado == 'en_preparacion' %}
+                                            <option value="en_preparacion" selected>En Preparación (Actual)</option>
+                                            <option value="listo">→ Listo para Recoger</option>
+                                            <option value="rechazado">→ Rechazar</option>
+                                        {% endif %}
+                                    </select>
+                                </form>
+                            {% endif %}
+                        </td>
+                    <td style="padding: 1.5rem 0.75rem; vertical-align: middle;">{{ pedido.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                    <td style="padding: 1.5rem 0.75rem; text-align: center; vertical-align: middle;">
+                        {% if pedido.estado == 'en_preparacion' %}
+                            <a href="{% url 'editar_pedido' pedido.id %}" class="btn btn-sm btn-warning" title="Editar Pedido">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+                        {% endif %}
+                        <a href="#" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#detalleModal{{ pedido.id }}">
+                            <i class="bi bi-eye"></i> Ver Detalles
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted">No hay pedidos</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modales fuera de la tabla -->
+{% for pedido in pedidos %}
+<div class="modal fade" id="detalleModal{{ pedido.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Pedido #{{ pedido.numero_pedido }}</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong>Cliente:</strong> {{ pedido.usuario.get_full_name|default:pedido.usuario.username }}</p>
+                        <p><strong>Email:</strong> {{ pedido.usuario.email }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Fecha:</strong> {{ pedido.fecha_creacion|date:"d/m/Y H:i" }}</p>
+                        <p><strong>Estado:</strong> <span class="badge bg-info">{{ pedido.get_estado_display }}</span></p>
+                    </div>
+                </div>
+                
+                <hr>
+                <h6 class="mb-3"><strong>Productos Comprados:</strong></h6>
+                {% if pedido.items.all %}
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Producto</th>
+                                <th style="width: 100px;">Cantidad</th>
+                                <th style="width: 120px;">Precio Unitario</th>
+                                <th style="width: 120px;">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in pedido.items.all %}
+                            <tr>
+                                <td>{{ item.producto.titulo }}</td>
+                                <td class="text-center">{{ item.cantidad }}</td>
+                                <td class="text-right">${{ item.precio_unitario }}</td>
+                                <td class="text-right"><strong>${{ item.cantidad|add:0 }} x {{ item.precio_unitario }}</strong></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-active">
+                                <td colspan="3" class="text-right"><strong>Total:</strong></td>
+                                <td class="text-right"><strong>${{ pedido.total }}</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No hay productos en este pedido.</p>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<script>
+function aplicarFiltrosPedidos() {
+    const estado = document.getElementById('estado_pedidos').value;
+    
+    const params = new URLSearchParams();
+    if (estado) params.append('estado', estado);
+    
+    fetch(`{% url 'admin_pedidos' %}?${params.toString()}`, {
+        headers: {'X-Requested-With': 'XMLHttpRequest'}
+    })
+    .then(response => response.text())
+    .then(html => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const nuevoDiv = doc.querySelector('#tabla-admin-pedidos');
+        if (nuevoDiv) {
+            document.querySelector('#tabla-admin-pedidos').innerHTML = nuevoDiv.innerHTML;
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+function limpiarFiltrosPedidos() {
+    document.getElementById('estado_pedidos').value = '';
+    aplicarFiltrosPedidos();
+}
+</script>
+{% endblock %}

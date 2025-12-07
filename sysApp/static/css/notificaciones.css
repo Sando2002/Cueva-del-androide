@@ -1,0 +1,109 @@
+/* Notificaciones CSS */
+body {
+    background: #f8f9fa;
+    font-family: 'Baloo 2', sans-serif;
+}
+
+.notif-card {
+    background: white;
+    border-left: 4px solid #667eea;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.3s;
+}
+
+.notif-card:hover {
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+.notif-card.pedido_creado {
+    border-left-color: #17a2b8;
+}
+
+.notif-card.pedido_pagado {
+    border-left-color: #28a745;
+}
+
+.notif-card.pedido_procesando {
+    border-left-color: #ffc107;
+}
+
+.notif-card.pedido_listo {
+    border-left-color: #20c997;
+}
+
+.notif-card.pedido_rechazado {
+    border-left-color: #dc3545;
+}
+
+.notif-card.pedido_cancelado {
+    border-left-color: #6c757d;
+}
+
+.notif-card.stock_bajo {
+    border-left-color: #ff9800;
+}
+
+.notif-card.pago_fallido {
+    border-left-color: #e74c3c;
+}
+
+.notif-icon {
+    font-size: 24px;
+    margin-right: 12px;
+    min-width: 30px;
+}
+
+.notif-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+}
+
+.notif-titulo {
+    font-weight: bold;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+.notif-tipo {
+    display: inline-block;
+    font-size: 0.85rem;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: #f0f0f0;
+    color: #666;
+}
+
+.notif-mensaje {
+    color: #666;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    margin: 8px 0;
+}
+
+.notif-fecha {
+    color: #999;
+    font-size: 0.85rem;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+}
+
+.empty-icon {
+    font-size: 80px;
+    color: #ddd;
+    margin-bottom: 20px;
+}
+
+.container-main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}

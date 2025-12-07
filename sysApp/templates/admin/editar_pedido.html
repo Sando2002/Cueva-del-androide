@@ -1,0 +1,206 @@
+{% extends 'admin/base_admin.html' %}
+{% load static %}
+
+{% block title %}Editar Pedido - Admin{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 2rem; margin-bottom: 3rem;">
+    <div class="row">
+        <div class="col-md-10 offset-md-1">
+            <!-- Header -->
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 2px solid #ecf0f1;">
+                <div>
+                    <h1 style="margin: 0; color: #2c3e50; font-size: 1.8rem;">
+                        <i class="fas fa-edit"></i> Editar Pedido #{{ pedido.numero_pedido }}
+                    </h1>
+                    <p style="margin: 0.5rem 0 0 0; color: #7f8c8d; font-size: 0.95rem;">
+                        Cliente: <strong>{{ pedido.usuario.get_full_name|default:pedido.usuario.username }}</strong>
+                    </p>
+                </div>
+                <a href="{% url 'admin_pedidos' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </a>
+            </div>
+
+            <!-- Información del Pedido -->
+            <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+                <div class="row">
+                    <div class="col-md-3">
+                        <p style="margin: 0; color: #7f8c8d; font-size: 0.9rem; font-weight: 600;">Estado</p>
+                        <p style="margin: 0.25rem 0 0 0; color: #2c3e50; font-size: 1rem;">
+                            <span class="badge" style="padding: 0.5rem 1rem; background: {% if pedido.estado == 'en_preparacion' %}#f39c12{% else %}#3498db{% endif %}; color: white;">
+                                {{ pedido.get_estado_display }}
+                            </span>
+                        </p>
+                    </div>
+                    <div class="col-md-3">
+                        <p style="margin: 0; color: #7f8c8d; font-size: 0.9rem; font-weight: 600;">Total Original</p>
+                        <p style="margin: 0.25rem 0 0 0; color: #2c3e50; font-size: 1.1rem; font-weight: 600;">${{ pedido.total }}</p>
+                    </div>
+                    <div class="col-md-3">
+                        <p style="margin: 0; color: #7f8c8d; font-size: 0.9rem; font-weight: 600;">Reembolso Actual</p>
+                        <p style="margin: 0.25rem 0 0 0; color: #e74c3c; font-size: 1.1rem; font-weight: 600;">
+                            {% if pedido.reembolso_parcial > 0 %}-${{ pedido.reembolso_parcial }}{% else %}$0{% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-3">
+                        <p style="margin: 0; color: #7f8c8d; font-size: 0.9rem; font-weight: 600;">Fecha de Creación</p>
+                        <p style="margin: 0.25rem 0 0 0; color: #2c3e50; font-size: 0.95rem;">{{ pedido.fecha_creacion|date:"d/m/Y H:i" }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulario de Edición -->
+            <form method="POST" style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                {% csrf_token %}
+
+                <!-- Items del Pedido -->
+                <h3 style="color: #2c3e50; margin-bottom: 1.5rem; font-size: 1.3rem;">
+                    <i class="fas fa-box"></i> Items del Pedido
+                </h3>
+
+                {% if items %}
+                    <div style="overflow-x: auto; margin-bottom: 2rem;">
+                        <table class="table table-hover" style="margin-bottom: 0;">
+                            <thead style="background: #ecf0f1;">
+                                <tr>
+                                    <th style="text-align: center; padding: 1rem; width: 50px;">
+                                        <input type="checkbox" id="selectAll" onchange="toggleAll(this)">
+                                    </th>
+                                    <th style="padding: 1rem;">Producto</th>
+                                    <th style="text-align: center; padding: 1rem;">Cantidad</th>
+                                    <th style="text-align: right; padding: 1rem;">Precio Unitario</th>
+                                    <th style="text-align: right; padding: 1rem;">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in items %}
+                                <tr style="border-bottom: 1px solid #ecf0f1;">
+                                    <td style="text-align: center; padding: 1rem; vertical-align: middle;">
+                                        <input type="checkbox" name="items_eliminar" value="{{ item.id }}" class="item-checkbox">
+                                    </td>
+                                    <td style="padding: 1rem; vertical-align: middle;">
+                                        <div style="font-weight: 600; color: #2c3e50;">{{ item.producto.titulo }}</div>
+                                        <small style="color: #7f8c8d;">SKU: {{ item.producto.id }}</small>
+                                    </td>
+                                    <td style="text-align: center; padding: 1rem; vertical-align: middle; color: #2c3e50; font-weight: 600;">
+                                        x{{ item.cantidad }}
+                                    </td>
+                                    <td style="text-align: right; padding: 1rem; vertical-align: middle; color: #2c3e50;">
+                                        ${{ item.precio_unitario }}
+                                    </td>
+                                    <td style="text-align: right; padding: 1rem; vertical-align: middle; color: #2c3e50; font-weight: 600;">
+                                        <span class="item-subtotal" data-cantidad="{{ item.cantidad }}" data-precio="{{ item.precio_unitario }}">
+                                            ${{ item.cantidad }} × ${{ item.precio_unitario }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Nota sobre eliminación -->
+                    <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 1rem; border-radius: 4px; margin-bottom: 2rem;">
+                        <p style="margin: 0; color: #856404;">
+                            <i class="fas fa-info-circle"></i> <strong>Selecciona los productos que deseas eliminar</strong> del pedido. Se procesará automáticamente un reembolso por el monto correspondiente.
+                        </p>
+                    </div>
+
+                    <!-- Razón del Reembolso -->
+                    <div style="margin-bottom: 2rem;">
+                        <label for="razon" style="display: block; color: #2c3e50; font-weight: 600; margin-bottom: 0.5rem;">
+                            <i class="fas fa-comment"></i> Razón de la Eliminación (Opcional)
+                        </label>
+                        <textarea
+                            name="razon"
+                            id="razon"
+                            rows="3"
+                            class="form-control"
+                            style="border: 1px solid #ecf0f1; border-radius: 6px; padding: 0.75rem; font-size: 0.95rem;"
+                            placeholder="Ej: No hay stock físico disponible del producto. El cliente será notificado del reembolso...">
+                        </textarea>
+                        <small style="color: #7f8c8d; display: block; margin-top: 0.25rem;">Esta razón será visible para el cliente en la notificación de reembolso.</small>
+                    </div>
+
+                {% else %}
+                    <div style="background: #f8d7da; border: 1px solid #f5c6cb; padding: 1.5rem; border-radius: 6px; text-align: center;">
+                        <p style="margin: 0; color: #721c24;">
+                            <i class="fas fa-exclamation-circle"></i> Este pedido no tiene items.
+                        </p>
+                    </div>
+                {% endif %}
+
+                <!-- Botones de Acción -->
+                <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #ecf0f1;">
+                    <a href="{% url 'admin_pedidos' %}" class="btn btn-secondary" style="padding: 0.75rem 1.5rem;">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-danger" style="padding: 0.75rem 1.5rem;" onclick="return confirm('¿Estás seguro de que deseas continuar? Se procesará el reembolso automáticamente.')">
+                        <i class="fas fa-check"></i> Procesar Reembolso
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Calcular subtotales
+    document.querySelectorAll('.item-subtotal').forEach(span => {
+        const cantidad = parseInt(span.getAttribute('data-cantidad'));
+        const precio = parseInt(span.getAttribute('data-precio'));
+        const subtotal = cantidad * precio;
+        span.textContent = '$' + subtotal.toLocaleString();
+    });
+
+    // Toggle para seleccionar/deseleccionar todos
+    function toggleAll(checkbox) {
+        const items = document.querySelectorAll('.item-checkbox');
+        items.forEach(item => item.checked = checkbox.checked);
+    }
+
+    // Deseleccionar "todos" si se deselecciona algún item
+    document.querySelectorAll('.item-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const selectAll = document.getElementById('selectAll');
+            const allChecked = Array.from(document.querySelectorAll('.item-checkbox')).every(cb => cb.checked);
+            selectAll.checked = allChecked;
+        });
+    });
+</script>
+
+<style>
+    .btn-danger {
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-danger:hover {
+        background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+    }
+
+    .btn-secondary {
+        background: #95a5a6;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        padding: 0.75rem 1.5rem;
+    }
+
+    .btn-secondary:hover {
+        background: #7f8c8d;
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}

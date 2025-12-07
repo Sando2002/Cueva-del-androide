@@ -1,0 +1,8 @@
+1.Tiene acceso a el administrador de django, y puede agregar, eliminar y editar productos: 
+- Superusuario: Juanito, Contraseña: 12345678
+
+2.El usuario común no tendrá acceso al panel administrativo ni a agregar productos: 
+- Usuario: jon, Contraseña: Diego1234
+
+3.Si el usuario no esta logeado no tendrá acceso al carrito:
+-

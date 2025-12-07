@@ -1,0 +1,147 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block content %}
+<div class="container-fluid" style="padding: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <div>
+            <h1 style="margin: 0; font-size: 2.5rem; font-weight: 700; color: #2c3e50;">Panel de Control</h1>
+            <p style="color: #7f8c8d; margin-top: 0.5rem;">Bienvenido, {{ request.user.username }}</p>
+        </div>
+        <div style="font-size: 0.9rem; color: #95a5a6;">
+            {{ now|date:"d \d\e F \d\e Y" }}
+        </div>
+    </div>
+
+    <!-- Estadísticas con animación -->
+    <div class="row" style="margin-bottom: 2rem;">
+        <div class="col-lg-3 col-md-6 mb-3" style="animation: slideInUp 0.6s ease-out;">
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 2rem; color: white; box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2); transition: all 0.3s ease; cursor: pointer;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 15px 40px rgba(102, 126, 234, 0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(102, 126, 234, 0.2)'">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">Total de Productos</p>
+                        <h2 style="margin: 0.5rem 0 0 0; font-size: 2.5rem; font-weight: 700;">{{ total_productos }}</h2>
+                    </div>
+                    <i class="bi bi-box" style="font-size: 2.5rem; opacity: 0.7;"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3" style="animation: slideInUp 0.6s ease-out 0.1s both;">
+            <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 12px; padding: 2rem; color: white; box-shadow: 0 10px 30px rgba(245, 87, 108, 0.2); transition: all 0.3s ease; cursor: pointer;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 15px 40px rgba(245, 87, 108, 0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(245, 87, 108, 0.2)'">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">Pedidos Pendientes</p>
+                        <h2 style="margin: 0.5rem 0 0 0; font-size: 2.5rem; font-weight: 700;">{{ total_pedidos }}</h2>
+                    </div>
+                    <i class="bi bi-receipt" style="font-size: 2.5rem; opacity: 0.7;"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3" style="animation: slideInUp 0.6s ease-out 0.2s both;">
+            <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border-radius: 12px; padding: 2rem; color: white; box-shadow: 0 10px 30px rgba(79, 172, 254, 0.2); transition: all 0.3s ease; cursor: pointer;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 15px 40px rgba(79, 172, 254, 0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(79, 172, 254, 0.2)'">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">Categorías</p>
+                        <h2 style="margin: 0.5rem 0 0 0; font-size: 2.5rem; font-weight: 700;">{{ total_categorias }}</h2>
+                    </div>
+                    <i class="bi bi-tag" style="font-size: 2.5rem; opacity: 0.7;"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3" style="animation: slideInUp 0.6s ease-out 0.3s both;">
+            <div style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); border-radius: 12px; padding: 2rem; color: white; box-shadow: 0 10px 30px rgba(250, 112, 154, 0.2); transition: all 0.3s ease; cursor: pointer;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 15px 40px rgba(250, 112, 154, 0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(250, 112, 154, 0.2)'">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">Bajo Stock</p>
+                        <h2 style="margin: 0.5rem 0 0 0; font-size: 2.5rem; font-weight: 700;">{{ productos_bajo_stock }}</h2>
+                    </div>
+                    <i class="bi bi-exclamation-triangle" style="font-size: 2.5rem; opacity: 0.7;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Acciones Rápidas -->
+    <div class="row" style="margin-bottom: 2rem;">
+        <div class="col-md-12">
+            <h3 style="color: #2c3e50; font-weight: 600; margin-bottom: 1rem;">Acciones Rápidas</h3>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <a href="{% url 'admin_productos' %}" style="flex: 1; min-width: 200px; padding: 1rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 8px; text-decoration: none; font-weight: 600; text-align: center; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 10px 25px rgba(102, 126, 234, 0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 5px 15px rgba(102, 126, 234, 0.2)'">
+                    <i class="bi bi-pencil"></i> Gestionar Productos
+                </a>
+                <a href="{% url 'admin_pedidos' %}" style="flex: 1; min-width: 200px; padding: 1rem; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border-radius: 8px; text-decoration: none; font-weight: 600; text-align: center; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(245, 87, 108, 0.2);" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 10px 25px rgba(245, 87, 108, 0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 5px 15px rgba(245, 87, 108, 0.2)'">
+                    <i class="bi bi-clipboard-check"></i> Ver Pedidos
+                </a>
+                <a href="{% url 'gestionar_inventario' %}" style="flex: 1; min-width: 200px; padding: 1rem; background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; border-radius: 8px; text-decoration: none; font-weight: 600; text-align: center; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(250, 112, 154, 0.2);" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 10px 25px rgba(250, 112, 154, 0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 5px 15px rgba(250, 112, 154, 0.2)'">
+                    <i class="bi bi-box-seam"></i> Gestionar Inventario
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pedidos Recientes -->
+    <div class="row">
+        <div class="col-md-12">
+            <h3 style="color: #2c3e50; font-weight: 600; margin-bottom: 1rem;">Pedidos Recientes</h3>
+            <div style="background: white; border-radius: 12px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08); overflow: hidden;">
+                <div class="table-responsive">
+                    <table class="table table-hover" style="margin-bottom: 0;">
+                        <thead style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);">
+                            <tr>
+                                <th style="color: #2c3e50; font-weight: 600; padding: 1.5rem;">Pedido</th>
+                                <th style="color: #2c3e50; font-weight: 600;">Cliente</th>
+                                <th style="color: #2c3e50; font-weight: 600;">Total</th>
+                                <th style="color: #2c3e50; font-weight: 600;">Estado</th>
+                                <th style="color: #2c3e50; font-weight: 600;">Fecha</th>
+                                <th style="color: #2c3e50; font-weight: 600;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pedido in pedidos_recientes %}
+                            <tr style="border-bottom: 1px solid #ecf0f1; transition: background-color 0.2s ease;" onmouseover="this.style.backgroundColor='#f8f9fa'" onmouseout="this.style.backgroundColor=''">
+                                <td style="font-weight: 600; color: #667eea;">#{{ pedido.numero_pedido }}</td>
+                                <td>{{ pedido.usuario.get_full_name|default:pedido.usuario.username }}</td>
+                                <td style="font-weight: 600; color: #2c3e50;">${{ pedido.total }}</td>
+                                <td>
+                                    <span class="badge" style="padding: 0.5rem 0.8rem; font-size: 0.85rem; {% if pedido.estado == 'aprobado' %}background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); color: white;{% elif pedido.estado == 'procesando' %}background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;{% elif pedido.estado == 'pendiente' %}background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white;{% else %}background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;{% endif %}">
+                                        {{ pedido.get_estado_display }}
+                                    </span>
+                                </td>
+                                <td style="color: #7f8c8d;">{{ pedido.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                                <td>
+                                    <a href="{% url 'admin_pedidos' %}" style="padding: 0.5rem 1rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 6px; text-decoration: none; font-size: 0.9rem; transition: all 0.3s ease; display: inline-block;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">Ver</a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" style="text-align: center; padding: 2rem; color: #95a5a6;">No hay pedidos recientes</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

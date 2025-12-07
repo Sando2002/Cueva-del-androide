@@ -1,0 +1,96 @@
+body {
+    background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+}
+
+.header {
+    flex-shrink: 0;
+}
+
+.page-content {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+    padding: 40px 20px;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pending-container {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    padding: 40px;
+    max-width: 600px;
+    text-align: center;
+    width: 100%;
+}
+
+.pending-icon {
+    font-size: 80px;
+    color: #ffc107;
+    margin-bottom: 20px;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+h1 {
+    color: #333;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.pedido-info {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+    text-align: left;
+}
+
+.pedido-info p {
+    margin-bottom: 10px;
+}
+
+.label-info {
+    font-weight: bold;
+    color: #ffc107;
+}
+
+.alert-box {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.alert-box p {
+    color: #856404;
+    margin: 0;
+}
+
+.btn-action {
+    background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+    border: none;
+    color: white;
+    font-weight: bold;
+    padding: 12px 30px;
+    border-radius: 50px;
+    margin: 10px 5px;
+    transition: transform 0.3s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-action:hover {
+    transform: scale(1.05);
+    color: white;
+}

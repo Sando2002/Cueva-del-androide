@@ -1,0 +1,114 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notificaciones - Cueva del Androide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Baloo+2:wght@800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/navbar.css' %}?v=5.1" />
+    <link rel="stylesheet" href="{% static 'css/notificaciones.css' %}?v=1.0" />
+    <link rel="shortcut icon" type="image/png" href="{% static 'favicon.png' %}">
+</head>
+<body class="min-h-screen flex flex-col">
+    {% include 'includes/navbar.html' %}
+    
+    <div class="container-main flex-grow">
+        <div class="mb-4">
+            <h1 class="display-5 mb-2"><i class="fas fa-bell"></i> Notificaciones</h1>
+            <p class="text-muted">Todas tus notificaciones en un solo lugar</p>
+        </div>
+        
+        {% if notificaciones %}
+            {% for notificacion in notificaciones %}
+            <div class="notif-card {{ notificacion.tipo }}">
+                <div class="d-flex">
+                    <div class="notif-icon">
+                        {% if notificacion.tipo == 'pedido_creado' %}
+                            <i class="fas fa-plus-circle" style="color: #17a2b8;"></i>
+                        {% elif notificacion.tipo == 'pedido_pagado' %}
+                            <i class="fas fa-check-circle" style="color: #28a745;"></i>
+                        {% elif notificacion.tipo == 'pedido_procesando' %}
+                            <i class="fas fa-hourglass-half" style="color: #ffc107;"></i>
+                        {% elif notificacion.tipo == 'pedido_listo' %}
+                            <i class="fas fa-box" style="color: #20c997;"></i>
+                        {% elif notificacion.tipo == 'pedido_rechazado' %}
+                            <i class="fas fa-times-circle" style="color: #dc3545;"></i>
+                        {% elif notificacion.tipo == 'pedido_cancelado' %}
+                            <i class="fas fa-ban" style="color: #6c757d;"></i>
+                        {% elif notificacion.tipo == 'stock_bajo' %}
+                            <i class="fas fa-exclamation-triangle" style="color: #ff9800;"></i>
+                        {% elif notificacion.tipo == 'pago_fallido' %}
+                            <i class="fas fa-exclamation-circle" style="color: #e74c3c;"></i>
+                        {% else %}
+                            <i class="fas fa-info-circle" style="color: #667eea;"></i>
+                        {% endif %}
+                    </div>
+                    <div style="flex: 1;">
+                        <div class="notif-header">
+                            <div>
+                                <div class="notif-titulo">{{ notificacion.titulo }}</div>
+                                <span class="notif-tipo">{{ notificacion.get_tipo_display }}</span>
+                            </div>
+                        </div>
+                        <div class="notif-mensaje">{{ notificacion.mensaje }}</div>
+                        <div class="notif-fecha">
+                            <i class="fas fa-clock"></i> {{ notificacion.fecha_creacion|date:"d/m/Y H:i" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            
+            <!-- Paginación -->
+            {% if page_obj.has_other_pages %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1">Primera</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+                        </li>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% else %}
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Última</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-inbox"></i>
+                </div>
+                <h3>No tienes notificaciones</h3>
+                <p>Cuando tengas actividad, verás tus notificaciones aquí</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    {% include 'includes/footer.html' %}
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

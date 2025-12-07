@@ -1,0 +1,305 @@
+{% extends 'admin/base_admin.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid" style="padding: 2rem;">
+    <h1 style="margin: 0 0 2rem 0; font-size: 2.5rem; font-weight: 700; color: #2c3e50;">Gestión de Inventario</h1>
+
+    <!-- Alertas de Reorden y Sobrestoque -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <!-- Alerta de Reorden -->
+        {% if productos_reorden %}
+        <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 12px; padding: 1.5rem; color: white; box-shadow: 0 5px 15px rgba(245, 87, 108, 0.2);">
+            <strong style="font-size: 1.1rem;"><i class="bi bi-exclamation-triangle"></i> Productos para Reordenar:</strong>
+            <p style="margin: 0.5rem 0 0 0;">{{ productos_reorden|length }} producto(s) con stock ≤ mínimo</p>
+        </div>
+        {% endif %}
+
+        <!-- Alerta de Sobrestoque -->
+        {% if productos_sobrestoque %}
+        <div style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); border-radius: 12px; padding: 1.5rem; color: white; box-shadow: 0 5px 15px rgba(250, 112, 154, 0.2);">
+            <strong style="font-size: 1.1rem;"><i class="bi bi-exclamation-circle"></i> Productos en Sobrestoque:</strong>
+            <p style="margin: 0.5rem 0 0 0;">{{ productos_sobrestoque|length }} producto(s) con stock > máximo</p>
+        </div>
+        {% endif %}
+
+        <!-- Órdenes Pendientes -->
+        {% if ordenes_pendientes %}
+        <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border-radius: 12px; padding: 1.5rem; color: white; box-shadow: 0 5px 15px rgba(79, 172, 254, 0.2);">
+            <strong style="font-size: 1.1rem;"><i class="bi bi-box-seam"></i> Órdenes Pendientes:</strong>
+            <p style="margin: 0.5rem 0 0 0;">{{ ordenes_pendientes|length }} orden(es) de compra pendiente</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Botones de Acciones Rápidas -->
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem;">
+        <a href="{% url 'crear_orden_compra' %}" class="btn btn-primary" style="padding: 0.75rem 1.5rem; font-weight: 600;">
+            <i class="bi bi-plus-circle"></i> Nueva Orden de Compra
+        </a>
+        <a href="{% url 'crear_auditoria_inventario' %}" class="btn btn-info" style="padding: 0.75rem 1.5rem; font-weight: 600;">
+            <i class="bi bi-search"></i> Crear Auditoría
+        </a>
+    </div>
+
+    <!-- Tabs de Inventario -->
+    <div style="background: white; border-radius: 12px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08); overflow: hidden;">
+        <ul class="nav nav-tabs" role="tablist" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-bottom: 2px solid #ecf0f1;">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="reorden-tab" data-bs-toggle="tab" data-bs-target="#reorden" style="color: #2c3e50; font-weight: 600; border: none;">
+                    <i class="bi bi-exclamation-triangle"></i> Para Reordenar
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="sobrestoque-tab" data-bs-toggle="tab" data-bs-target="#sobrestoque" style="color: #2c3e50; font-weight: 600; border: none;">
+                    <i class="bi bi-exclamation-circle"></i> Sobrestoque
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="todos-tab" data-bs-toggle="tab" data-bs-target="#todos" style="color: #2c3e50; font-weight: 600; border: none;">
+                    <i class="bi bi-box"></i> Todos los Productos
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="movimientos-tab" data-bs-toggle="tab" data-bs-target="#movimientos" style="color: #2c3e50; font-weight: 600; border: none;">
+                    <i class="bi bi-arrow-left-right"></i> Movimientos Recientes
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="ordenes-tab" data-bs-toggle="tab" data-bs-target="#ordenes" style="color: #2c3e50; font-weight: 600; border: none;">
+                    <i class="bi bi-receipt"></i> Órdenes de Compra
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <!-- Tab Reorden -->
+            <div class="tab-pane fade show active" id="reorden" role="tabpanel">
+                <div class="table-responsive">
+                    <table class="table table-hover" style="margin-bottom: 0;">
+                        <colgroup>
+                            <col style="width: 30%;">
+                            <col style="width: 15%;">
+                            <col style="width: 15%;">
+                            <col style="width: 15%;">
+                            <col style="width: 25%;">
+                        </colgroup>
+                        <thead style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+                            <tr>
+                                <th style="font-weight: 600; padding: 1.5rem; vertical-align: middle;">Producto</th>
+                                <th style="font-weight: 600; vertical-align: middle; text-align: center;">Stock Actual</th>
+                                <th style="font-weight: 600; vertical-align: middle; text-align: center;">Stock Mín</th>
+                                <th style="font-weight: 600; vertical-align: middle; text-align: center;">Stock Máx</th>
+                                <th style="font-weight: 600; vertical-align: middle; text-align: center;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for producto in productos_reorden %}
+                            <tr style="border-bottom: 1px solid #ecf0f1; transition: background-color 0.2s ease;" onmouseover="this.style.backgroundColor='#f8f9fa'" onmouseout="this.style.backgroundColor=''">
+                                <td style="font-weight: 600; color: #2c3e50; padding: 1.5rem 0.75rem;">{{ producto.titulo }}</td>
+                                <td style="padding: 1.5rem 0.75rem; text-align: center;">
+                                    <span class="badge" style="padding: 0.5rem 0.8rem; background: #e74c3c; color: white;">{{ producto.stock }}</span>
+                                </td>
+                                <td style="padding: 1.5rem 0.75rem; text-align: center; color: #e74c3c; font-weight: 600;">{{ producto.stock_minimo }}</td>
+                                <td style="padding: 1.5rem 0.75rem; text-align: center; color: #27ae60; font-weight: 600;">{{ producto.stock_maximo }}</td>
+                                <td style="padding: 1.5rem 0.75rem; text-align: center;">
+                                    <a href="{% url 'registrar_movimiento' producto.id %}" class="btn btn-sm btn-success">
+                                        <i class="bi bi-plus-circle"></i> Registrar Entrada
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted" style="padding: 2rem;">Todos los productos están en niveles adecuados</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab Sobrestoque -->
+            <div class="tab-pane fade" id="sobrestoque" role="tabpanel">
+                <div class="table-responsive">
+                    <table class="table table-hover" style="margin-bottom: 0;">
+                        <colgroup>
+                            <col style="width: 30%;">
+                            <col style="width: 15%;">
+                            <col style="width: 15%;">
+                            <col style="width: 15%;">
+                            <col style="width: 25%;">
+                        </colgroup>
+                        <thead style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white;">
+                            <tr>
+                                <th style="font-weight: 600; padding: 1.5rem; vertical-align: middle;">Producto</th>
+                                <th style="font-weight: 600; vertical-align: middle; text-align: center;">Stock Actual</th>
+                                <th style="font-weight: 600; vertical-align: middle; text-align: center;">Stock Mín</th>
+                                <th style="font-weight: 600; vertical-align: middle; text-align: center;">Stock Máx</th>
+                                <th style="font-weight: 600; vertical-align: middle; text-align: center;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for producto in productos_sobrestoque %}
+                            <tr style="border-bottom: 1px solid #ecf0f1; transition: background-color 0.2s ease;" onmouseover="this.style.backgroundColor='#f8f9fa'" onmouseout="this.style.backgroundColor=''">
+                                <td style="font-weight: 600; color: #2c3e50; padding: 1.5rem 0.75rem;">{{ producto.titulo }}</td>
+                                <td style="padding: 1.5rem 0.75rem; text-align: center;">
+                                    <span class="badge" style="padding: 0.5rem 0.8rem; background: #f39c12; color: white;">{{ producto.stock }}</span>
+                                </td>
+                                <td style="padding: 1.5rem 0.75rem; text-align: center; color: #e74c3c; font-weight: 600;">{{ producto.stock_minimo }}</td>
+                                <td style="padding: 1.5rem 0.75rem; text-align: center; color: #27ae60; font-weight: 600;">{{ producto.stock_maximo }}</td>
+                                <td style="padding: 1.5rem 0.75rem; text-align: center;">
+                                    <a href="{% url 'registrar_movimiento' producto.id %}" class="btn btn-sm btn-warning">
+                                        <i class="bi bi-dash-circle"></i> Registrar Salida
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted" style="padding: 2rem;">No hay productos con sobrestoque</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab Todos los Productos -->
+            <div class="tab-pane fade" id="todos" role="tabpanel">
+                <div class="table-responsive">
+                    <table class="table table-hover" style="margin-bottom: 0;">
+                        <colgroup>
+                            <col style="width: 30%;">
+                            <col style="width: 15%;">
+                            <col style="width: 15%;">
+                            <col style="width: 15%;">
+                            <col style="width: 25%;">
+                        </colgroup>
+                        <thead style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);">
+                            <tr>
+                                <th style="font-weight: 600; padding: 1.5rem; color: #2c3e50;">Producto</th>
+                                <th style="font-weight: 600; color: #2c3e50; text-align: center;">Stock Actual</th>
+                                <th style="font-weight: 600; color: #2c3e50; text-align: center;">Stock Mín</th>
+                                <th style="font-weight: 600; color: #2c3e50; text-align: center;">Stock Máx</th>
+                                <th style="font-weight: 600; color: #2c3e50; text-align: center;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for producto in todos_productos %}
+                            <tr style="border-bottom: 1px solid #ecf0f1; transition: background-color 0.2s ease;" onmouseover="this.style.backgroundColor='#f8f9fa'" onmouseout="this.style.backgroundColor=''">
+                                <td style="font-weight: 600; color: #2c3e50; padding: 1.5rem 0.75rem;">{{ producto.titulo }}</td>
+                                <td style="padding: 1.5rem 0.75rem; text-align: center;">
+                                    {% if producto.stock <= producto.stock_minimo %}
+                                        <span class="badge" style="padding: 0.5rem 0.8rem; background: #e74c3c; color: white;">{{ producto.stock }}</span>
+                                    {% elif producto.stock > producto.stock_maximo %}
+                                        <span class="badge" style="padding: 0.5rem 0.8rem; background: #f39c12; color: white;">{{ producto.stock }}</span>
+                                    {% else %}
+                                        <span class="badge" style="padding: 0.5rem 0.8rem; background: #27ae60; color: white;">{{ producto.stock }}</span>
+                                    {% endif %}
+                                </td>
+                                <td style="padding: 1.5rem 0.75rem; text-align: center; color: #e74c3c; font-weight: 600;">{{ producto.stock_minimo }}</td>
+                                <td style="padding: 1.5rem 0.75rem; text-align: center; color: #27ae60; font-weight: 600;">{{ producto.stock_maximo }}</td>
+                                <td style="padding: 1.5rem 0.75rem; text-align: center;">
+                                    <a href="{% url 'registrar_movimiento' producto.id %}" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-pencil"></i> Movimiento
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab Movimientos Recientes -->
+            <div class="tab-pane fade" id="movimientos" role="tabpanel">
+                <div class="table-responsive">
+                    <table class="table table-hover" style="margin-bottom: 0;">
+                        <colgroup>
+                            <col style="width: 25%;">
+                            <col style="width: 15%;">
+                            <col style="width: 12%;">
+                            <col style="width: 12%;">
+                            <col style="width: 12%;">
+                            <col style="width: 24%;">
+                        </colgroup>
+                        <thead style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                            <tr>
+                                <th style="font-weight: 600; padding: 1.5rem;">Producto</th>
+                                <th style="font-weight: 600; text-align: center;">Tipo</th>
+                                <th style="font-weight: 600; text-align: center;">Cantidad</th>
+                                <th style="font-weight: 600; text-align: center;">Stock Ant.</th>
+                                <th style="font-weight: 600; text-align: center;">Stock Post.</th>
+                                <th style="font-weight: 600;">Fecha</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for movimiento in movimientos_recientes %}
+                            <tr style="border-bottom: 1px solid #ecf0f1;">
+                                <td style="font-weight: 600; color: #2c3e50; padding: 1.5rem 0.75rem;">{{ movimiento.producto.titulo }}</td>
+                                <td style="padding: 1.5rem 0.75rem; text-align: center;">
+                                    <span class="badge" style="padding: 0.5rem 0.8rem; background: #3498db; color: white;">{{ movimiento.get_tipo_display }}</span>
+                                </td>
+                                <td style="padding: 1.5rem 0.75rem; text-align: center; font-weight: 600;">{{ movimiento.cantidad }}</td>
+                                <td style="padding: 1.5rem 0.75rem; text-align: center;">{{ movimiento.stock_anterior }}</td>
+                                <td style="padding: 1.5rem 0.75rem; text-align: center;">{{ movimiento.stock_posterior }}</td>
+                                <td style="padding: 1.5rem 0.75rem; color: #7f8c8d;">{{ movimiento.fecha|date:"d/m/Y H:i" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center text-muted" style="padding: 2rem;">No hay movimientos registrados</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab Órdenes de Compra -->
+            <div class="tab-pane fade" id="ordenes" role="tabpanel">
+                <div class="table-responsive">
+                    <table class="table table-hover" style="margin-bottom: 0;">
+                        <colgroup>
+                            <col style="width: 15%;">
+                            <col style="width: 20%;">
+                            <col style="width: 15%;">
+                            <col style="width: 15%;">
+                            <col style="width: 20%;">
+                            <col style="width: 15%;">
+                        </colgroup>
+                        <thead style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
+                            <tr>
+                                <th style="font-weight: 600; padding: 1.5rem;">Número Orden</th>
+                                <th style="font-weight: 600;">Proveedor</th>
+                                <th style="font-weight: 600; text-align: center;">Estado</th>
+                                <th style="font-weight: 600; text-align: center;">Fecha Creación</th>
+                                <th style="font-weight: 600; text-align: center;">Entrega Esperada</th>
+                                <th style="font-weight: 600; text-align: center;">Total Estimado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for orden in ordenes_pendientes %}
+                            <tr style="border-bottom: 1px solid #ecf0f1; transition: background-color 0.2s ease;" onmouseover="this.style.backgroundColor='#f8f9fa'" onmouseout="this.style.backgroundColor=''">
+                                <td style="font-weight: 600; color: #667eea; padding: 1.5rem 0.75rem;">{{ orden.numero_orden }}</td>
+                                <td style="color: #2c3e50; padding: 1.5rem 0.75rem;">{{ orden.proveedor }}</td>
+                                <td style="padding: 1.5rem 0.75rem; text-align: center;">
+                                    <span class="badge" style="padding: 0.5rem 0.8rem; background: #3498db; color: white;">{{ orden.get_estado_display }}</span>
+                                </td>
+                                <td style="padding: 1.5rem 0.75rem; text-align: center; color: #7f8c8d;">{{ orden.fecha_creacion|date:"d/m/Y" }}</td>
+                                <td style="padding: 1.5rem 0.75rem; text-align: center; color: #27ae60; font-weight: 600;">{{ orden.fecha_entrega_esperada|date:"d/m/Y" }}</td>
+                                <td style="padding: 1.5rem 0.75rem; text-align: center; font-weight: 600; color: #667eea;">${{ orden.total_estimado }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center text-muted" style="padding: 2rem;">No hay órdenes de compra registradas</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

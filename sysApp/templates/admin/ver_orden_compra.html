@@ -1,0 +1,311 @@
+{% extends 'admin/base_admin.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container" style="padding: 2rem; max-width: 1000px;">
+    <!-- Encabezado -->
+    <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h2 style="font-size: 2rem; color: #2c3e50; margin-bottom: 0.5rem;">
+                <i class="bi bi-truck"></i> Orden de Compra: {{ orden.numero_orden }}
+            </h2>
+            <p style="color: #7f8c8d;">Detalles completos y productos solicitados</p>
+        </div>
+        <a href="{% url 'gestionar_inventario' %}" style="padding: 0.75rem 1.5rem; background: #95a5a6; color: white; border-radius: 6px; text-decoration: none; font-weight: 600;">
+            ← Volver
+        </a>
+    </div>
+
+    <!-- Información Principal -->
+    <div class="card" style="border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+        <div style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; padding: 1.5rem; border-radius: 12px 12px 0 0;">
+            <h5 style="margin: 0; font-weight: 600;">Información de la Orden</h5>
+        </div>
+        <div style="padding: 2rem;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+                <!-- Estado -->
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px;">
+                    <small style="color: #7f8c8d; display: block; margin-bottom: 0.5rem; font-weight: 600;">Estado</small>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span class="badge" style="padding: 0.5rem 1rem; font-size: 0.95rem; background: {% if orden.estado == 'pendiente' %}#95a5a6{% elif orden.estado == 'confirmada' %}#3498db{% elif orden.estado == 'enviada' %}#f39c12{% elif orden.estado == 'recibida' %}#27ae60{% else %}#e74c3c{% endif %};">
+                            {{ orden.get_estado_display }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Proveedor -->
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px;">
+                    <small style="color: #7f8c8d; display: block; margin-bottom: 0.5rem; font-weight: 600;">Proveedor</small>
+                    <p style="margin: 0; font-size: 1.1rem; color: #2c3e50; font-weight: 600;">{{ orden.proveedor }}</p>
+                </div>
+
+                <!-- Número de Orden -->
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px;">
+                    <small style="color: #7f8c8d; display: block; margin-bottom: 0.5rem; font-weight: 600;">Número de Orden</small>
+                    <p style="margin: 0; font-size: 1.1rem; color: #2c3e50; font-weight: 600;">{{ orden.numero_orden }}</p>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                <!-- Fechas -->
+                <div>
+                    <div style="background: #ecf0f1; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                        <small style="color: #7f8c8d; display: block; margin-bottom: 0.3rem; font-weight: 600;">Fecha de Creación</small>
+                        <p style="margin: 0; color: #2c3e50;">{{ orden.fecha_creacion|date:"d/m/Y H:i" }}</p>
+                    </div>
+                    <div style="background: #ecf0f1; padding: 1rem; border-radius: 8px;">
+                        <small style="color: #7f8c8d; display: block; margin-bottom: 0.3rem; font-weight: 600;">Entrega Esperada</small>
+                        <p style="margin: 0; color: #2c3e50;">{{ orden.fecha_entrega_esperada|date:"d/m/Y" }}</p>
+                    </div>
+                </div>
+
+                <!-- Usuario y Recepción -->
+                <div>
+                    <div style="background: #ecf0f1; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                        <small style="color: #7f8c8d; display: block; margin-bottom: 0.3rem; font-weight: 600;">Creada Por</small>
+                        <p style="margin: 0; color: #2c3e50;">{{ orden.usuario.get_full_name|default:orden.usuario.username }}</p>
+                    </div>
+                    {% if orden.fecha_recepcion %}
+                    <div style="background: #d5f4e6; padding: 1rem; border-radius: 8px;">
+                        <small style="color: #27ae60; display: block; margin-bottom: 0.3rem; font-weight: 600;">Recibida el</small>
+                        <p style="margin: 0; color: #27ae60;">{{ orden.fecha_recepcion|date:"d/m/Y H:i" }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if orden.observaciones %}
+            <div style="background: #fff3cd; padding: 1rem; border-radius: 8px; margin-top: 1rem; border-left: 4px solid #ffc107;">
+                <small style="color: #856404; display: block; margin-bottom: 0.5rem; font-weight: 600;">Observaciones</small>
+                <p style="margin: 0; color: #856404;">{{ orden.observaciones }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Productos de la Orden -->
+    <div class="card" style="border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+        <div style="background: linear-gradient(135deg, #27ae60 0%, #229954 100%); color: white; padding: 1.5rem; border-radius: 12px 12px 0 0;">
+            <h5 style="margin: 0; font-weight: 600;"><i class="bi bi-basket"></i> Productos Solicitados ({{ detalles.count }})</h5>
+        </div>
+        <div style="padding: 0; overflow-x: auto;">
+            <form method="post" id="form-recepcion">
+                {% csrf_token %}
+                <input type="hidden" name="accion" value="aceptar_parcial">
+                <input type="hidden" name="detalles_json" id="detalles_json" value="{}">
+                
+                <table class="table table-hover" style="margin-bottom: 0;">
+                    <thead style="background: #f8f9fa;">
+                        <tr>
+                            <th style="color: #2c3e50; font-weight: 600; padding: 1rem;">Producto</th>
+                            <th style="color: #2c3e50; font-weight: 600; text-align: center; padding: 1rem;">Precio Unitario</th>
+                            <th style="color: #2c3e50; font-weight: 600; text-align: center; padding: 1rem;">Cantidad Solicitada</th>
+                            <th style="color: #2c3e50; font-weight: 600; text-align: center; padding: 1rem;">Cantidad a Recibir</th>
+                            <th style="color: #2c3e50; font-weight: 600; text-align: right; padding: 1rem;">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for detalle in detalles %}
+                        <tr class="detalle-row" data-detalle-id="{{ detalle.id }}" data-precio="{{ detalle.precio_unitario }}">
+                            <td style="padding: 1rem;">
+                                <strong>{{ detalle.producto.titulo }}</strong>
+                            </td>
+                            <td style="text-align: center; padding: 1rem;">
+                                ${{ detalle.precio_unitario|floatformat:0 }}
+                            </td>
+                            <td style="text-align: center; padding: 1rem;">
+                                <span class="badge" style="padding: 0.5rem 1rem; font-size: 0.9rem; background: #3498db;">
+                                    {{ detalle.cantidad_solicitada }}
+                                </span>
+                            </td>
+                            <td style="text-align: center; padding: 1rem;">
+                                <input type="number" class="cantidad-recibir" min="0" max="{{ detalle.cantidad_solicitada }}" value="{{ detalle.cantidad_recibida|default:0 }}" 
+                                       style="width: 80px; padding: 0.5rem; border: 2px solid #3498db; border-radius: 4px; text-align: center; font-weight: 600;">
+                            </td>
+                            <td style="text-align: right; padding: 1rem;">
+                                <strong style="font-size: 1.05rem; color: #2c3e50; subtotal-display">
+                                    ${{ detalle.subtotal_solicitado|floatformat:0 }}
+                                </strong>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 2rem; color: #95a5a6;">
+                                No hay productos en esta orden
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </form>
+        </div>
+    </div>
+
+    <!-- Resumen de Totales -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 2.5rem; margin-bottom: 2.5rem;">
+        <!-- Total Estimado -->
+        <div class="card" style="border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); overflow: hidden;">
+            <div style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); color: white; padding: 1.5rem;">
+                <small style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem;">Total Estimado</small>
+                <h3 style="margin: 0; font-size: 2rem; font-weight: 700;">
+                    ${{ total_estimado|floatformat:0 }}
+                </h3>
+            </div>
+            <div style="padding: 1.5rem; text-align: center; background: #fef5e7;">
+                <small style="color: #7f8c8d;">Basado en cantidades solicitadas</small>
+            </div>
+        </div>
+
+        <!-- Total Recibido -->
+        <div class="card" style="border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); overflow: hidden;">
+            <div style="background: linear-gradient(135deg, #27ae60 0%, #229954 100%); color: white; padding: 1.5rem;">
+                <small style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem;">Total a Recibir</small>
+                <h3 id="total-nuevo" style="margin: 0; font-size: 2rem; font-weight: 700;">
+                    $0
+                </h3>
+            </div>
+            <div style="padding: 1.5rem; text-align: center; background: #d5f4e6;">
+                <small style="color: #27ae60;" id="resumen-total">
+                    Selecciona cantidades arriba
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Acciones -->
+    {% if orden.estado != 'recibida' and orden.estado != 'cancelada' %}
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 3rem; margin-top: 2.5rem;">
+        <!-- Aceptar Parcial -->
+        <div style="background: white; border-radius: 12px; padding: 2.5rem; box-shadow: 0 5px 20px rgba(0,0,0,0.1); border-top: 4px solid #27ae60;">
+            <h5 style="color: #27ae60; margin-bottom: 1.5rem; margin-top: 0; font-weight: 600; font-size: 1.15rem;">
+                <i class="bi bi-check-circle"></i> Aceptar Productos
+            </h5>
+            <p style="color: #7f8c8d; margin-bottom: 2rem; font-size: 0.95rem; line-height: 1.6;">
+                Ingresa las cantidades que recibirás de cada producto. El stock se actualizará automáticamente.
+            </p>
+            <button type="button" onclick="document.getElementById('form-recepcion').submit();" 
+                    style="width: 100%; padding: 1rem; background: #27ae60; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-size: 1rem;"
+                    onmouseover="this.style.backgroundColor='#229954'"
+                    onmouseout="this.style.backgroundColor='#27ae60'">
+                ✓ Confirmar Recepción
+            </button>
+        </div>
+
+        <!-- Rechazar Orden -->
+        <div style="background: white; border-radius: 12px; padding: 2.5rem; box-shadow: 0 5px 20px rgba(0,0,0,0.1); border-top: 4px solid #e74c3c;">
+            <h5 style="color: #e74c3c; margin-bottom: 1.5rem; margin-top: 0; font-weight: 600; font-size: 1.15rem;">
+                <i class="bi bi-x-circle"></i> Rechazar Orden
+            </h5>
+            <p style="color: #7f8c8d; margin-bottom: 2rem; font-size: 0.95rem; line-height: 1.6;">
+                Rechaza toda la orden y especifica el motivo.
+            </p>
+            <button type="button" onclick="abrirModalRechazo();" 
+                    style="width: 100%; padding: 1rem; background: #e74c3c; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-size: 1rem;"
+                    onmouseover="this.style.backgroundColor='#c0392b'"
+                    onmouseout="this.style.backgroundColor='#e74c3c'">
+                ✕ Rechazar Orden
+            </button>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Botón Volver -->
+    <div style="display: flex; gap: 1rem; margin-top: 3rem; justify-content: center; padding-bottom: 2rem;">
+        <a href="{% url 'gestionar_inventario' %}" style="padding: 0.85rem 2rem; background: #95a5a6; color: white; border-radius: 6px; text-decoration: none; font-weight: 600; transition: all 0.3s ease; font-size: 1rem;" onmouseover="this.style.backgroundColor='#7f8c8d'" onmouseout="this.style.backgroundColor='#95a5a6'">
+            ← Volver a Gestión de Inventario
+        </a>
+    </div>
+</div>
+
+<!-- Modal de Rechazo -->
+<div id="modal-rechazo" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 12px; padding: 2rem; max-width: 500px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+        <h5 style="color: #e74c3c; margin-bottom: 1rem; font-weight: 600;">
+            <i class="bi bi-exclamation-triangle"></i> Confirmar Rechazo
+        </h5>
+        <p style="color: #7f8c8d; margin-bottom: 1.5rem;">
+            ¿Estás seguro que deseas rechazar la orden <strong>{{ orden.numero_orden }}</strong>?
+        </p>
+        
+        <form method="post" style="display: none;" id="form-rechazo">
+            {% csrf_token %}
+            <input type="hidden" name="accion" value="rechazar_completo">
+            <input type="hidden" name="razon_rechazo" id="razon-rechazo" value="">
+        </form>
+
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50;">Motivo del Rechazo</label>
+            <textarea id="razon-texto" rows="3" placeholder="Ej: Productos dañados, incumplimiento de especificaciones, etc."
+                      style="width: 100%; padding: 0.75rem; border: 1px solid #bdc3c7; border-radius: 6px; font-family: Arial; resize: vertical;"></textarea>
+        </div>
+
+        <div style="display: flex; gap: 1rem;">
+            <button type="button" onclick="cerrarModalRechazo();" 
+                    style="flex: 1; padding: 0.75rem; background: #95a5a6; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                Cancelar
+            </button>
+            <button type="button" onclick="confirmarRechazo();" 
+                    style="flex: 1; padding: 0.75rem; background: #e74c3c; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                Confirmar Rechazo
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Actualizar totales cuando cambien las cantidades
+    document.querySelectorAll('.cantidad-recibir').forEach(input => {
+        input.addEventListener('change', actualizarTotales);
+        input.addEventListener('input', actualizarTotales);
+    });
+    
+    actualizarTotales();
+});
+
+function actualizarTotales() {
+    let totalNuevo = 0;
+    const detallesData = {};
+    
+    document.querySelectorAll('.detalle-row').forEach(row => {
+        const detalleId = row.dataset.detalleId;
+        const precio = parseInt(row.dataset.precio);
+        const cantidadInput = row.querySelector('.cantidad-recibir');
+        const cantidad = parseInt(cantidadInput.value) || 0;
+        
+        detallesData[detalleId] = cantidad;
+        totalNuevo += cantidad * precio;
+    });
+    
+    document.getElementById('total-nuevo').textContent = '$' + totalNuevo.toLocaleString('es-CL');
+    document.getElementById('detalles_json').value = JSON.stringify(detallesData);
+    
+    const itemsRecibidos = Object.values(detallesData).filter(v => v > 0).length;
+    document.getElementById('resumen-total').textContent = 
+        itemsRecibidos > 0 ? `${itemsRecibidos} producto(s) a recibir` : 'Selecciona cantidades arriba';
+}
+
+function abrirModalRechazo() {
+    document.getElementById('modal-rechazo').style.display = 'flex';
+}
+
+function cerrarModalRechazo() {
+    document.getElementById('modal-rechazo').style.display = 'none';
+    document.getElementById('razon-texto').value = '';
+}
+
+function confirmarRechazo() {
+    const razon = document.getElementById('razon-texto').value || 'No especificada';
+    document.getElementById('razon-rechazo').value = razon;
+    document.getElementById('form-rechazo').submit();
+}
+
+// Cerrar modal al hacer clic fuera
+document.getElementById('modal-rechazo').addEventListener('click', function(e) {
+    if (e.target === this) {
+        cerrarModalRechazo();
+    }
+});
+</script>
+{% endblock %}
+

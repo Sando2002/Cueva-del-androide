@@ -1,0 +1,177 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Animaciones */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* 🔹 Footer - Tema morado oscuro con texto claro */
+.footer {
+  text-align: left;
+  padding: 3rem 1.25rem;
+  background: linear-gradient(135deg, #5a1a7f 0%, #3d0f52 100%);
+  color: #ffffff; /* texto claro */
+  margin-top: 3rem;
+  border-top: 2px solid rgba(154, 46, 197, 0.5);
+}
+
+.footer .text-danger {
+  color: #ffffff !important; /* forzar blanco en enlaces de contacto si se usó text-danger */
+}
+
+.footer .contact h5,
+.footer .links h5,
+.footer .map h5 {
+  margin-bottom: 0.75rem;
+  color: #1cbf58;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.95rem;
+  animation: slideInLeft 0.6s ease-out;
+}
+
+.footer .contact,
+.footer .links,
+.footer .map {
+  padding-right: 1rem;
+  padding-left: 1rem;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.footer .contact-link,
+.footer .footer-link {
+  color: rgba(255,255,255,0.95);
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  position: relative;
+  padding-bottom: 2px;
+  border-bottom: 2px solid transparent;
+}
+
+.footer .contact-link:hover,
+.footer .footer-link:hover {
+  text-decoration: none;
+  color: #1cbf58;
+  border-bottom-color: #1cbf58;
+  transform: translateX(5px);
+}
+
+/* Ajustes responsivos */
+@media (max-width: 576px) {
+  .footer {
+    padding: 1rem;
+    text-align: center;
+  }
+  .footer .contact,
+  .footer .links,
+  .footer .map {
+    text-align: center;
+    padding: 0;
+  }
+  .footer .map-iframe {
+    height: 180px;
+    width: 100%;
+  }
+}
+
+/* Pequeño ajuste para asegurar buen contraste en los textos secundarios */
+.footer p,
+.footer a,
+.footer li {
+  color: rgba(255,255,255,0.95);
+  transition: color 0.3s ease;
+}
+
+.footer li {
+  margin-bottom: 0.5rem;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.footer li:hover {
+  color: #1cbf58;
+}
+
+/* Map wrapper */
+.map-wrapper {
+  width: 100%;
+  max-width: 360px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.map-wrapper:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(154, 46, 197, 0.3);
+}
+
+.map-iframe {
+  width: 100%;
+  height: 200px;
+  border-radius: 8px;
+  border: 0;
+  transition: transform 0.3s ease;
+}
+
+.map-iframe:hover {
+  transform: scale(1.02);
+}
+
+/* Placeholder cuando el iframe no está disponible */
+.map-placeholder {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.map-placeholder-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: rgba(255,255,255,0.06);
+  padding: 1rem;
+  border-radius: 8px;
+  min-height: 180px;
+}
+
+/* Copyright text */
+.footer .small {
+  animation: fadeInUp 0.8s ease-out;
+  letter-spacing: 0.5px;
+}
+
+.map-placeholder-box i {
+  color: #ffffff;
+}
+
+.map-placeholder-box p {
+  color: rgba(255,255,255,0.95);
+  margin: 0;
+  font-weight: 600;
+}
+
+.map-placeholder-box:hover {
+  background: rgba(255,255,255,0.09);
+}

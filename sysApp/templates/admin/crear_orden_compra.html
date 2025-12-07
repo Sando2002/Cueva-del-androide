@@ -1,0 +1,222 @@
+{% extends 'admin/base_admin.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container" style="padding: 2rem; max-width: 900px;">
+    <div style="margin-bottom: 2rem;">
+        <h2 style="font-size: 2rem; color: #2c3e50; margin-bottom: 0.5rem;">🛒 Crear Orden de Compra</h2>
+        <p style="color: #7f8c8d;">Registra una nueva orden de compra con los productos a recibir</p>
+    </div>
+
+    <div class="card" style="border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+        <div class="card-body" style="padding: 2rem;">
+            <form method="post" style="display: grid; gap: 1.5rem;">
+                {% csrf_token %}
+
+                <!-- Datos principales -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50;">
+                            Proveedor *
+                        </label>
+                        <input type="text" name="proveedor" required placeholder="Ej: Distribuidor XYZ" 
+                               style="width: 100%; padding: 0.75rem; border: 1px solid #bdc3c7; border-radius: 6px; font-size: 1rem;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50;">
+                            Fecha de Entrega Estimada *
+                        </label>
+                        <input type="date" name="fecha_entrega" required 
+                               style="width: 100%; padding: 0.75rem; border: 1px solid #bdc3c7; border-radius: 6px; font-size: 1rem;">
+                    </div>
+                </div>
+
+                <!-- Productos -->
+                <div>
+                    <label style="display: block; margin-bottom: 1rem; font-weight: 600; color: #2c3e50;">
+                        Productos a Comprar *
+                    </label>
+                    
+                    <div id="productos-container" style="border: 2px dashed #bdc3c7; border-radius: 8px; padding: 1.5rem; background: #f8f9fa; max-height: 400px; overflow-y: auto;">
+                        <!-- Los productos se agregarán aquí dinámicamente -->
+                    </div>
+
+                    <div style="margin-top: 1rem;">
+                        <button type="button" id="btn-agregar-producto" class="btn btn-outline-primary" 
+                                style="width: 100%; padding: 0.75rem; font-weight: 600;">
+                            + Agregar Producto
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Resumen -->
+                <div style="padding: 1.5rem; background: #ecf0f1; border-radius: 8px; border-left: 4px solid #3498db;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2rem; text-align: right;">
+                        <div>
+                            <small style="color: #7f8c8d; display: block; margin-bottom: 0.5rem;">Total de Productos</small>
+                            <h4 id="total-items" style="margin: 0; color: #2c3e50;">0</h4>
+                        </div>
+                        <div>
+                            <small style="color: #7f8c8d; display: block; margin-bottom: 0.5rem;">Cantidad Total</small>
+                            <h4 id="total-cantidad" style="margin: 0; color: #3498db;">0 unidades</h4>
+                        </div>
+                        <div>
+                            <small style="color: #7f8c8d; display: block; margin-bottom: 0.5rem;">Total Estimado</small>
+                            <h4 id="total-estimado" style="margin: 0; color: #27ae60;">$0</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- JSON oculto -->
+                <input type="hidden" name="productos_json" id="productos_json" value="[]">
+
+                <!-- Observaciones -->
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50;">
+                        Observaciones
+                    </label>
+                    <textarea name="observaciones" rows="3" placeholder="Ej: Entregar en horario de oficina" 
+                              style="width: 100%; padding: 0.75rem; border: 1px solid #bdc3c7; border-radius: 6px; font-size: 1rem; font-family: Arial;"></textarea>
+                </div>
+
+                <!-- Botones -->
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-success" style="flex: 1; padding: 0.75rem; font-weight: 600;">
+                        <i class="bi bi-check-circle"></i> Crear Orden de Compra
+                    </button>
+                    <a href="{% url 'gestionar_inventario' %}" class="btn btn-secondary" style="flex: 1; padding: 0.75rem; text-decoration: none; text-align: center;">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<template id="producto-row">
+    <div class="producto-item" style="display: grid; grid-template-columns: 1fr 150px 100px auto; gap: 1rem; align-items: end; padding: 1rem; background: white; border-radius: 6px; margin-bottom: 0.75rem; border: 1px solid #ecf0f1;">
+        <div>
+            <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #7f8c8d; margin-bottom: 0.25rem;">Producto</label>
+            <select class="producto-select" required style="width: 100%; padding: 0.5rem; border: 1px solid #bdc3c7; border-radius: 4px; font-size: 0.9rem;">
+                <option value="">-- Selecciona un producto --</option>
+                {% for producto in productos %}
+                <option value="{{ producto.id }}" data-titulo="{{ producto.titulo }}" data-stock="{{ producto.stock }}">
+                    {{ producto.titulo }} (Stock: {{ producto.stock }})
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #7f8c8d; margin-bottom: 0.25rem;">Cantidad</label>
+            <input type="number" class="producto-cantidad" required min="1" value="1" 
+                   style="width: 100%; padding: 0.5rem; border: 1px solid #bdc3c7; border-radius: 4px; font-size: 0.9rem;">
+        </div>
+        <div>
+            <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #7f8c8d; margin-bottom: 0.25rem;">Precio Unit.</label>
+            <input type="number" class="producto-precio" required min="0.01" step="0.01" 
+                   style="width: 100%; padding: 0.5rem; border: 1px solid #bdc3c7; border-radius: 4px; font-size: 0.9rem;">
+        </div>
+        <button type="button" class="btn-eliminar" style="background: #e74c3c; color: white; border: none; padding: 0.5rem 0.75rem; border-radius: 4px; cursor: pointer; font-weight: 600;">
+            ✕
+        </button>
+    </div>
+</template>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('productos-container');
+    const btnAgregar = document.getElementById('btn-agregar-producto');
+    const jsonInput = document.getElementById('productos_json');
+    const totalItemsSpan = document.getElementById('total-items');
+    const totalCantidadSpan = document.getElementById('total-cantidad');
+    const totalEstimadoSpan = document.getElementById('total-estimado');
+    const form = document.querySelector('form');
+
+    function agregarProductoRow() {
+        const template = document.querySelector('template#producto-row');
+        const clone = template.content.cloneNode(true);
+        
+        const btnEliminar = clone.querySelector('.btn-eliminar');
+        btnEliminar.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.currentTarget.closest('.producto-item').remove();
+            actualizarResumen();
+        });
+
+        const inputs = clone.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            input.addEventListener('change', actualizarResumen);
+            input.addEventListener('input', actualizarResumen);
+        });
+
+        container.appendChild(clone);
+        actualizarResumen();
+    }
+
+    function actualizarResumen() {
+        const items = document.querySelectorAll('.producto-item');
+        const productosData = [];
+        let totalCantidad = 0;
+        let totalEstimado = 0;
+
+        items.forEach(item => {
+            const select = item.querySelector('.producto-select');
+            const cantidad = parseInt(item.querySelector('.producto-cantidad').value) || 0;
+            const precio = parseFloat(item.querySelector('.producto-precio').value) || 0;
+
+            if (select.value) {
+                const option = select.options[select.selectedIndex];
+                const subtotal = cantidad * precio;
+                productosData.push({
+                    producto_id: parseInt(select.value),
+                    titulo: option.dataset.titulo,
+                    cantidad: cantidad,
+                    precio_unitario: precio,
+                    subtotal: subtotal
+                });
+                totalCantidad += cantidad;
+                totalEstimado += subtotal;
+            }
+        });
+
+        totalItemsSpan.textContent = items.length;
+        totalCantidadSpan.textContent = totalCantidad + ' unidades';
+        totalEstimadoSpan.textContent = '$' + totalEstimado.toLocaleString('es-CL');
+        jsonInput.value = JSON.stringify(productosData);
+    }
+
+    function validarFormulario(e) {
+        const items = document.querySelectorAll('.producto-item');
+        if (items.length === 0) {
+            e.preventDefault();
+            alert('Debes agregar al menos un producto');
+            return false;
+        }
+
+        let valido = true;
+        items.forEach(item => {
+            const select = item.querySelector('.producto-select');
+            if (!select.value) {
+                valido = false;
+            }
+        });
+
+        if (!valido) {
+            e.preventDefault();
+            alert('Todos los productos deben estar completamente llenos');
+            return false;
+        }
+    }
+
+    btnAgregar.addEventListener('click', function(e) {
+        e.preventDefault();
+        agregarProductoRow();
+    });
+
+    form.addEventListener('submit', validarFormulario);
+
+    // Agregar primer producto al cargar
+    agregarProductoRow();
+});
+</script>
+{% endblock %}

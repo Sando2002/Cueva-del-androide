@@ -1,0 +1,171 @@
+{% extends 'admin/base_admin.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container" style="padding: 2rem; max-width: 700px;">
+    <div style="margin-bottom: 2rem;">
+        <h2 style="font-size: 2rem; color: #2c3e50; margin-bottom: 0.5rem;">🔍 Crear Auditoría de Inventario</h2>
+        <p style="color: #7f8c8d;">Inicia un nuevo conteo cíclico o por categoría</p>
+    </div>
+
+    <div class="card" style="border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+        <div class="card-body" style="padding: 2rem;">
+            <form method="post" style="display: grid; gap: 1.5rem;">
+                {% csrf_token %}
+
+                <!-- Tipo de Auditoría -->
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50;">
+                        Tipo de Auditoría *
+                    </label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <label style="display: flex; align-items: center; padding: 1rem; border: 2px solid #bdc3c7; border-radius: 8px; cursor: pointer; transition: all 0.3s;">
+                            <input type="radio" name="tipo" value="ciclico" required style="margin-right: 0.75rem; width: 20px; height: 20px; cursor: pointer;">
+                            <span style="font-weight: 600; color: #2c3e50;">Cíclica</span>
+                        </label>
+                        <label style="display: flex; align-items: center; padding: 1rem; border: 2px solid #bdc3c7; border-radius: 8px; cursor: pointer; transition: all 0.3s;">
+                            <input type="radio" name="tipo" value="categoria" required style="margin-right: 0.75rem; width: 20px; height: 20px; cursor: pointer;">
+                            <span style="font-weight: 600; color: #2c3e50;">Por Categoría</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Categoría (condicional) -->
+                <div id="categoria-container" style="display: none;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50;">
+                        Categoría a Auditar *
+                    </label>
+                    <select name="categoria_id" id="categoria_select" 
+                            style="width: 100%; padding: 0.75rem; border: 1px solid #bdc3c7; border-radius: 6px; font-size: 1rem;">
+                        <option value="">-- Selecciona una categoría --</option>
+                        {% for categoria in categorias %}
+                        <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Info de la auditoría -->
+                <div style="padding: 1.5rem; background: #e8f8f5; border-radius: 8px; border-left: 4px solid #27ae60;">
+                    <div id="info-auditoria">
+                        <small style="color: #16a085; display: block; margin-bottom: 0.5rem;">ℹ️ Información</small>
+                        <p style="margin: 0; color: #27ae60; font-size: 0.95rem;">
+                            Se iniciará una auditoría cíclica del inventario. Los productos se marcarán como "en_proceso" y no se podrán vender hasta finalizar el conteo.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Descripción / Motivo -->
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50;">
+                        Motivo / Descripción (opcional)
+                    </label>
+                    <textarea name="motivo" rows="3" placeholder="Ej: Auditoría mensual de fin de periodo"
+                              style="width: 100%; padding: 0.75rem; border: 1px solid #bdc3c7; border-radius: 6px; font-size: 1rem; font-family: Arial;"></textarea>
+                </div>
+
+                <!-- Resumen de productos -->
+                <div id="resumen-productos" style="padding: 1rem; background: #f8f9fa; border-radius: 8px; display: none;">
+                    <small style="color: #7f8c8d; display: block; margin-bottom: 0.5rem;">Productos a auditar:</small>
+                    <h4 id="resumen-count" style="margin: 0; color: #2c3e50;"></h4>
+                </div>
+
+                <!-- Aviso importante -->
+                <div style="padding: 1rem; background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; display: flex; gap: 1rem;">
+                    <span style="font-size: 1.5rem;">⚠️</span>
+                    <div>
+                        <strong style="color: #856404;">Importante:</strong>
+                        <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: #856404;">
+                            Durante la auditoría, los productos estarán <strong>bloqueados para venta</strong>. 
+                            Asegúrate de contar el inventario físico y compararlo con el sistema para ajustar discrepancias.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Botones -->
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-success" style="flex: 1; padding: 0.75rem; font-weight: 600;">
+                        <i class="bi bi-play-fill"></i> Iniciar Auditoría
+                    </button>
+                    <a href="{% url 'gestionar_inventario' %}" class="btn btn-secondary" style="flex: 1; padding: 0.75rem; text-decoration: none; text-align: center;">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tipoRadios = document.querySelectorAll('input[name="tipo"]');
+    const categoriaContainer = document.getElementById('categoria-container');
+    const categoriaSelect = document.getElementById('categoria_select');
+    const infoAuditoria = document.getElementById('info-auditoria');
+    const resumenProductos = document.getElementById('resumen-productos');
+    const resumenCount = document.getElementById('resumen-count');
+
+    const productos = {
+        ciclico: {{ total_productos }},
+        categoria: {
+            {% for categoria in categorias %}
+            {{ categoria.id }}: {{ categoria.productos_count|default:0 }},
+            {% endfor %}
+        }
+    };
+
+    function actualizarInfo() {
+        const tipoSeleccionado = document.querySelector('input[name="tipo"]:checked').value;
+        
+        if (tipoSeleccionado === 'ciclico') {
+            categoriaContainer.style.display = 'none';
+            categoriaSelect.removeAttribute('required');
+            
+            infoAuditoria.innerHTML = `
+                <small style="color: #16a085; display: block; margin-bottom: 0.5rem;">ℹ️ Auditoría Cíclica</small>
+                <p style="margin: 0; color: #27ae60; font-size: 0.95rem;">
+                    Se auditarán <strong>${productos.ciclico} productos</strong> en total. Esta es una auditoría completa del inventario.
+                </p>
+            `;
+            
+            resumenProductos.style.display = 'block';
+            resumenCount.textContent = `Total: ${productos.ciclico} productos para contar`;
+            
+        } else if (tipoSeleccionado === 'categoria') {
+            categoriaContainer.style.display = 'block';
+            categoriaSelect.setAttribute('required', 'required');
+            
+            const categoriaSeleccionada = categoriaSelect.value;
+            if (categoriaSeleccionada) {
+                const count = productos.categoria[categoriaSeleccionada] || 0;
+                infoAuditoria.innerHTML = `
+                    <small style="color: #16a085; display: block; margin-bottom: 0.5rem;">ℹ️ Auditoría por Categoría</small>
+                    <p style="margin: 0; color: #27ae60; font-size: 0.95rem;">
+                        Se auditarán <strong>${count} productos</strong> de esta categoría. Asegúrate de verificar cada unidad.
+                    </p>
+                `;
+                
+                resumenProductos.style.display = 'block';
+                resumenCount.textContent = `Total: ${count} productos en esta categoría`;
+            } else {
+                infoAuditoria.innerHTML = `
+                    <small style="color: #16a085; display: block; margin-bottom: 0.5rem;">ℹ️ Auditoría por Categoría</small>
+                    <p style="margin: 0; color: #27ae60; font-size: 0.95rem;">
+                        Selecciona una categoría para ver cuántos productos serán auditados.
+                    </p>
+                `;
+                resumenProductos.style.display = 'none';
+            }
+        }
+    }
+
+    tipoRadios.forEach(radio => {
+        radio.addEventListener('change', actualizarInfo);
+    });
+
+    categoriaSelect.addEventListener('change', actualizarInfo);
+
+    // Inicializar
+    actualizarInfo();
+});
+</script>
+{% endblock %}
